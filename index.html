@@ -771,14 +771,14 @@ Uses event delegation — no onclick= attributes
       link:'Shop Surge Creatine →',
       href: MT+'/products/morph-creatine',
       secondary:'Shop Protein →',
-      secondaryHref: MT+'/collections/protein-1'
+      secondaryHref: MT+'/collections/protein'
     };
     if (goal==='Fat Loss') return {
       icon:'🔥',
       title:'Protein + Recovery Stack — Fat loss essentials',
       text:'High protein intake preserves muscle during a caloric deficit. Mystical Transcendence\'s protein formulas are designed for queer athletes — no bro-science, no weird energy. Stack with recovery & hydration to keep performance up during your deficit.',
       link:'Shop Protein →',
-      href: MT+'/collections/protein-1',
+      href: MT+'/collections/protein',
       secondary:'Shop Recovery →',
       secondaryHref: MT+'/collections/recovery-hydration'
     };
@@ -883,8 +883,16 @@ Uses event delegation — no onclick= attributes
     sec.style.display=supp.secondary?'inline':'none';
 
     if (glp1==='Interested'||glp1==='No') {
-      document.getElementById('cta-headline').textContent='Have you heard about GLP-1 weight loss coaching?';
-      document.getElementById('cta-body').textContent='GLP-1 medications combined with trans-affirming coaching can be a powerful tool for sustainable fat loss. Book a free call to see if it\'s right for you.';
+      document.getElementById('cta-headline').textContent='Interested in GLP-1 Medical Weight Loss?';
+      document.getElementById('cta-body').textContent='Our medically supervised GLP-1 program is built specifically for trans bodies. No judgment, no generic protocols — just results.';
+      var glpBtn=document.createElement('a');
+      glpBtn.href='https://glp1.transformfitness.net';
+      glpBtn.target='_blank';
+      glpBtn.className='btn-next';
+      glpBtn.style.cssText='display:block;text-align:center;text-decoration:none;margin-top:16px;padding:16px;font-size:1rem;font-weight:600;border-radius:100px;background:linear-gradient(135deg,#5BCEFA,#F5A9B8);color:#0d0f14;';
+      glpBtn.textContent='Learn About GLP-1 Coaching →';
+      var ctaDiv=document.querySelector('.results-cta');
+      if(ctaDiv) ctaDiv.appendChild(glpBtn);
     }
 
     const meals=[{name:'Breakfast',p:0.25,c:0.25,f:0.25,cal:0.25},{name:'Lunch',p:0.30,c:0.30,f:0.30,cal:0.30},{name:'Dinner',p:0.35,c:0.35,f:0.30,cal:0.30},{name:'Snack',p:0.10,c:0.10,f:0.15,cal:0.15}];
@@ -1067,14 +1075,14 @@ const GHL_WEBHOOK_URL = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4nx
       link:'Shop Surge Creatine →',
       href: MT+'/products/morph-creatine',
       secondary:'Shop Protein →',
-      secondaryHref: MT+'/collections/protein-1'
+      secondaryHref: MT+'/collections/protein'
     };
     if (goal==='Fat Loss') return {
       icon:'🔥',
       title:'Protein + Recovery Stack — Fat loss essentials',
       text:'High protein intake preserves muscle during a caloric deficit. Mystical Transcendence\'s protein formulas are designed for queer athletes — no bro-science, no weird energy. Stack with recovery & hydration to keep performance up during your deficit.',
       link:'Shop Protein →',
-      href: MT+'/collections/protein-1',
+      href: MT+'/collections/protein',
       secondary:'Shop Recovery →',
       secondaryHref: MT+'/collections/recovery-hydration'
     };
@@ -1179,8 +1187,16 @@ const GHL_WEBHOOK_URL = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4nx
     sec.style.display=supp.secondary?'inline':'none';
 
     if (glp1==='Interested'||glp1==='No') {
-      document.getElementById('cta-headline').textContent='Have you heard about GLP-1 weight loss coaching?';
-      document.getElementById('cta-body').textContent='GLP-1 medications combined with trans-affirming coaching can be a powerful tool for sustainable fat loss. Book a free call to see if it\'s right for you.';
+      document.getElementById('cta-headline').textContent='Interested in GLP-1 Medical Weight Loss?';
+      document.getElementById('cta-body').textContent='Our medically supervised GLP-1 program is built specifically for trans bodies. No judgment, no generic protocols — just results.';
+      var glpBtn=document.createElement('a');
+      glpBtn.href='https://glp1.transformfitness.net';
+      glpBtn.target='_blank';
+      glpBtn.className='btn-next';
+      glpBtn.style.cssText='display:block;text-align:center;text-decoration:none;margin-top:16px;padding:16px;font-size:1rem;font-weight:600;border-radius:100px;background:linear-gradient(135deg,#5BCEFA,#F5A9B8);color:#0d0f14;';
+      glpBtn.textContent='Learn About GLP-1 Coaching →';
+      var ctaDiv=document.querySelector('.results-cta');
+      if(ctaDiv) ctaDiv.appendChild(glpBtn);
     }
 
     const meals=[{name:'Breakfast',p:0.25,c:0.25,f:0.25,cal:0.25},{name:'Lunch',p:0.30,c:0.30,f:0.30,cal:0.30},{name:'Dinner',p:0.35,c:0.35,f:0.30,cal:0.30},{name:'Snack',p:0.10,c:0.10,f:0.15,cal:0.15}];
