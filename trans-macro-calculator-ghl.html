@@ -1,0 +1,1218 @@
+<!--
+=================================================================
+TRANSFORM FITNESS COACHING — TRANS MACRO CALCULATOR  
+GHL-Ready | transformfitness.net/calculator
+Uses event delegation — no onclick= attributes
+=================================================================
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+
+  :root {
+    --trans-blue: #5BCEFA; --trans-pink: #F5A9B8; --trans-white: #FFFFFF;
+    --bg: #0d0f14; --bg2: #13161e; --bg3: #1a1e29; --card: #1e2332;
+    --border: rgba(255,255,255,0.08); --text: #e8eaf0; --muted: #7a8099;
+    --font-display: 'DM Serif Display', Georgia, serif;
+    --font-body: 'DM Sans', sans-serif;
+    --radius: 16px; --radius-sm: 10px;
+    --trans-gradient: linear-gradient(135deg, var(--trans-blue), var(--trans-pink));
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body, html { background: #0d0f14 !important; color: var(--text); font-family: var(--font-body); min-height: 100vh; overflow-x: hidden; }
+  body::before { content:''; position:fixed; inset:0; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E"); pointer-events:none; z-index:0; }
+
+  .hero { background:#0d0f14 !important; position:relative; min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:80px 24px 60px; text-align:center; overflow:hidden; }
+  .hero-glow { position:absolute; width:700px; height:700px; border-radius:50%; background:radial-gradient(circle,rgba(91,206,250,0.12) 0%,rgba(245,169,184,0.08) 50%,transparent 70%); top:50%; left:50%; transform:translate(-50%,-50%); pointer-events:none; animation:pulse 6s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{transform:translate(-50%,-50%) scale(1);opacity:1} 50%{transform:translate(-50%,-50%) scale(1.08);opacity:0.7} }
+  .stripe-bar { display:flex; height:5px; width:120px; border-radius:3px; overflow:hidden; margin:0 auto 32px; gap:2px; }
+  .stripe-bar span{flex:1} .stripe-bar span:nth-child(1){background:var(--trans-blue)} .stripe-bar span:nth-child(2){background:var(--trans-pink)} .stripe-bar span:nth-child(3){background:var(--trans-white)} .stripe-bar span:nth-child(4){background:var(--trans-pink)} .stripe-bar span:nth-child(5){background:var(--trans-blue)}
+  .hero-eyebrow { font-size:11px; font-weight:600; letter-spacing:0.18em; text-transform:uppercase; color:var(--trans-blue); margin-bottom:20px; }
+  .hero h1 { font-family:var(--font-display); font-size:clamp(2.6rem,7vw,5rem); line-height:1.1; color:var(--trans-white); max-width:800px; margin:0 auto 24px; }
+  .hero h1 em { font-style:italic; background:var(--trans-gradient); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+  .hero-sub { font-size:1.1rem; line-height:1.7; color:var(--muted); max-width:520px; margin:0 auto 48px; }
+  .cta-btn { display:inline-flex; align-items:center; gap:10px; background:var(--trans-gradient); color:#0d0f14; font-family:var(--font-body); font-size:1rem; font-weight:600; padding:16px 36px; border-radius:100px; border:none; cursor:pointer; text-decoration:none; transition:transform 0.2s,box-shadow 0.2s; box-shadow:0 0 40px rgba(91,206,250,0.25); }
+  .cta-btn:hover{transform:translateY(-2px);box-shadow:0 0 60px rgba(91,206,250,0.4)}
+  .trust-row { display:flex; align-items:center; justify-content:center; gap:32px; margin-top:56px; flex-wrap:wrap; }
+  .trust-item { display:flex; align-items:center; gap:8px; font-size:0.85rem; color:var(--muted); }
+  .trust-item .dot { width:6px; height:6px; border-radius:50%; background:var(--trans-gradient); }
+  .scroll-hint { position:absolute; bottom:32px; left:50%; transform:translateX(-50%); display:flex; flex-direction:column; align-items:center; gap:8px; color:var(--muted); font-size:0.75rem; letter-spacing:0.1em; animation:bounce 2s ease-in-out infinite; }
+  @keyframes bounce{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(6px)}}
+
+  .calc-wrapper { background:var(--bg); position:relative; z-index:1; padding:0 24px 120px; }
+  .calc-card { max-width:720px; margin:0 auto; background:var(--card); border:1px solid var(--border); border-radius:24px; overflow:hidden; box-shadow:0 40px 120px rgba(0,0,0,0.5); }
+
+  .progress-header { padding:28px 36px 24px; border-bottom:1px solid var(--border); background:var(--bg2); }
+  .progress-label { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+  .progress-label span{font-size:0.8rem;color:var(--muted)} .progress-label strong{font-size:0.9rem;color:var(--text)}
+  .progress-track{height:4px;background:var(--bg3);border-radius:2px;overflow:hidden}
+  .progress-fill{height:100%;background:var(--trans-gradient);border-radius:2px;transition:width 0.5s cubic-bezier(0.4,0,0.2,1)}
+  .step-dots{display:flex;gap:8px;margin-top:12px}
+  .step-dot{height:4px;flex:1;border-radius:2px;background:var(--bg3);transition:background 0.4s}
+  .step-dot.active{background:var(--trans-blue)} .step-dot.done{background:var(--trans-pink)}
+
+  .steps-container{overflow:hidden}
+  .step{display:none;padding:36px 36px 32px}
+  .step.active{display:block;animation:stepIn 0.4s ease}
+  @keyframes stepIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+  .step-title{font-family:var(--font-display);font-size:1.6rem;color:var(--trans-white);margin-bottom:6px}
+  .step-desc{font-size:0.9rem;color:var(--muted);margin-bottom:28px;line-height:1.6}
+
+  .field-group{margin-bottom:20px}
+  .field-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+  label{display:block;font-size:0.8rem;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+  input[type="number"],input[type="email"],input[type="text"],input[type="tel"],select{width:100%;background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:13px 16px;font-family:var(--font-body);font-size:0.95rem;color:var(--text);outline:none;transition:border-color 0.2s,box-shadow 0.2s;-webkit-appearance:none}
+  input:focus,select:focus{border-color:var(--trans-blue);box-shadow:0 0 0 3px rgba(91,206,250,0.12)}
+  select option{background:#1e2332}
+
+  .unit-toggle{display:flex;background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;margin-bottom:24px}
+  .unit-btn{flex:1;padding:10px;font-family:var(--font-body);font-size:0.85rem;font-weight:500;border:none;background:none;cursor:pointer;color:var(--muted);transition:all 0.2s}
+  .unit-btn.active{background:rgba(91,206,250,0.12);color:var(--trans-blue);font-weight:600}
+
+  .pill-group{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:20px}
+  .pill-group input[type="radio"]{display:none}
+  .pill-group label{margin:0;padding:10px 18px;border-radius:100px;border:1.5px solid var(--border);background:var(--bg2);font-size:0.85rem;font-weight:500;letter-spacing:0.02em;text-transform:none;cursor:pointer;transition:all 0.2s;color:var(--muted)}
+  .pill-group input[type="radio"]:checked+label{border-color:var(--trans-blue);color:var(--trans-blue);background:rgba(91,206,250,0.1);box-shadow:0 0 0 1px var(--trans-blue)}
+
+  .toggle-field{display:flex;align-items:center;justify-content:space-between;background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:14px 18px;margin-bottom:20px;cursor:pointer}
+  .toggle-field-label{font-size:0.9rem;color:var(--text)}
+  .toggle-switch{width:44px;height:24px;border-radius:100px;background:var(--bg3);border:none;cursor:pointer;position:relative;transition:background 0.3s;flex-shrink:0}
+  .toggle-switch::after{content:'';position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:var(--muted);transition:transform 0.3s,background 0.3s}
+  .toggle-switch.on{background:rgba(91,206,250,0.2)} .toggle-switch.on::after{transform:translateX(20px);background:var(--trans-blue)}
+  .conditional-field{display:none} .conditional-field.visible{display:block}
+
+  .info-note{background:rgba(91,206,250,0.06);border:1px solid rgba(91,206,250,0.2);border-radius:var(--radius-sm);padding:12px 16px;font-size:0.82rem;color:var(--trans-blue);line-height:1.6;margin-bottom:20px}
+  .info-note strong{color:var(--trans-white)}
+  .intersex-note{background:rgba(245,169,184,0.06);border:1px solid rgba(245,169,184,0.2);border-radius:var(--radius-sm);padding:14px 16px;font-size:0.82rem;color:var(--trans-pink);line-height:1.65;margin-bottom:20px}
+  .intersex-note strong{color:var(--trans-white)}
+
+  .step-nav{display:flex;justify-content:space-between;align-items:center;padding-top:24px;border-top:1px solid var(--border);margin-top:8px}
+  .btn-back{background:none;border:1.5px solid var(--border);color:var(--muted);font-family:var(--font-body);font-size:0.9rem;font-weight:500;padding:12px 24px;border-radius:100px;cursor:pointer;transition:all 0.2s}
+  .btn-back:hover{border-color:var(--text);color:var(--text)}
+  .btn-next{background:var(--trans-gradient);color:#0d0f14;font-family:var(--font-body);font-size:0.95rem;font-weight:600;padding:13px 32px;border-radius:100px;border:none;cursor:pointer;transition:transform 0.2s,box-shadow 0.2s;box-shadow:0 0 30px rgba(91,206,250,0.2)}
+  .btn-next:hover{transform:translateY(-1px);box-shadow:0 0 40px rgba(91,206,250,0.35)}
+
+  .email-gate{text-align:center;padding:48px 36px 32px}
+  .lock-icon{width:64px;height:64px;background:var(--trans-gradient);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;font-size:28px}
+  .email-gate h2{font-family:var(--font-display);font-size:1.8rem;color:var(--trans-white);margin-bottom:12px}
+  .email-gate>p{font-size:0.95rem;color:var(--muted);line-height:1.7;max-width:420px;margin:0 auto 28px}
+  .gate-fields{max-width:440px;margin:0 auto}
+  .gate-fields input{margin-bottom:12px}
+  .gate-fields .btn-next{width:100%;padding:15px;font-size:1rem;margin-top:4px}
+  .privacy-note{font-size:0.75rem;color:var(--muted);margin-top:12px}
+  .optional-tag{font-size:0.7rem;color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0;margin-left:6px}
+
+  .results-panel{display:none;padding:36px}
+  .results-panel.active{display:block;animation:stepIn 0.5s ease}
+  .results-hero{text-align:center;padding:28px 20px 36px;border-bottom:1px solid var(--border);margin-bottom:32px}
+  .results-hero h2{font-family:var(--font-display);font-size:1.7rem;color:var(--trans-white);margin-bottom:8px}
+  .calorie-big{font-family:var(--font-display);font-size:4.5rem;line-height:1;background:var(--trans-gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin:16px 0 4px}
+  .calorie-label{font-size:0.85rem;color:var(--muted);letter-spacing:0.08em}
+  .macro-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:28px}
+  .macro-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:20px 16px;text-align:center;position:relative;overflow:hidden}
+  .macro-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+  .macro-card.protein::before{background:var(--trans-blue)} .macro-card.carbs::before{background:var(--trans-pink)} .macro-card.fats::before{background:var(--trans-gradient)}
+  .macro-name{font-size:0.7rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+  .macro-grams{font-family:var(--font-display);font-size:2.2rem;color:var(--trans-white);line-height:1}
+  .macro-unit{font-size:0.75rem;color:var(--muted);margin-top:2px}
+  .macro-cals{font-size:0.8rem;color:var(--muted);margin-top:8px}
+  .insight-box{background:rgba(245,169,184,0.06);border:1px solid rgba(245,169,184,0.2);border-radius:var(--radius);padding:18px 20px;margin-bottom:24px}
+  .insight-box h4{font-size:0.85rem;font-weight:600;color:var(--trans-pink);margin-bottom:8px}
+  .insight-box p{font-size:0.88rem;color:var(--muted);line-height:1.65}
+
+  .cycling-section{margin-bottom:28px}
+  .cycling-section h3{font-family:var(--font-display);font-size:1.1rem;color:var(--trans-white);margin-bottom:6px}
+  .cycling-section p{font-size:0.82rem;color:var(--muted);margin-bottom:16px;line-height:1.5}
+  .cycling-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .cycling-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px;text-align:center}
+  .cycling-card .day-type{font-size:0.7rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+  .cycling-card .day-cals{font-family:var(--font-display);font-size:1.6rem;color:var(--trans-white)}
+  .cycling-card .day-note{font-size:0.75rem;color:var(--muted);margin-top:4px}
+  .cycling-card.training{border-color:rgba(91,206,250,0.3)} .cycling-card.rest{border-color:rgba(245,169,184,0.3)}
+
+  .supp-box{background:linear-gradient(135deg,rgba(91,206,250,0.08),rgba(245,169,184,0.08));border:1px solid rgba(91,206,250,0.2);border-radius:var(--radius);padding:20px;margin-bottom:24px;display:flex;gap:16px;align-items:flex-start}
+  .supp-icon{font-size:2rem;flex-shrink:0}
+  .supp-content h4{font-size:0.85rem;font-weight:600;color:var(--trans-blue);margin-bottom:6px}
+  .supp-content p{font-size:0.82rem;color:var(--muted);line-height:1.6}
+  .supp-link{display:inline-block;margin-top:10px;font-size:0.82rem;font-weight:600;color:var(--trans-blue);text-decoration:none;border-bottom:1px solid rgba(91,206,250,0.3)}
+
+  .extras-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:28px}
+  .extra-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px}
+  .extra-label{font-size:0.72rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+  .extra-value{font-size:1.05rem;font-weight:600;color:var(--trans-white)}
+  .extra-note{font-size:0.75rem;color:var(--muted);margin-top:4px}
+
+  .meal-table{width:100%;border-collapse:collapse;margin-bottom:28px}
+  .meal-table th{font-size:0.72rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);padding:0 12px 12px;text-align:right}
+  .meal-table th:first-child{text-align:left}
+  .meal-table td{padding:12px;font-size:0.9rem;color:var(--text);border-top:1px solid var(--border);text-align:right}
+  .meal-table td:first-child{text-align:left;font-weight:500}
+
+  .cta-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:28px}
+  .cta-mini{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:18px;text-align:center;cursor:pointer;transition:border-color 0.2s}
+  .cta-mini:hover{border-color:var(--trans-blue)}
+  .cta-mini .cta-icon{font-size:1.5rem;margin-bottom:8px}
+  .cta-mini h4{font-size:0.85rem;font-weight:600;color:var(--trans-white);margin-bottom:4px}
+  .cta-mini p{font-size:0.75rem;color:var(--muted);line-height:1.4}
+
+  .results-cta{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:28px 24px;text-align:center;margin-bottom:16px}
+  .results-cta h3{font-family:var(--font-display);font-size:1.4rem;color:var(--trans-white);margin-bottom:8px}
+  .results-cta p{font-size:0.88rem;color:var(--muted);margin-bottom:20px;line-height:1.6}
+  .results-cta .btn-next{width:100%;padding:16px;font-size:1rem}
+
+  .social-proof{padding:80px 24px;background:#13161e !important;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+  .proof-grid{max-width:860px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:24px}
+  .proof-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:28px 24px}
+  .proof-stars{color:var(--trans-pink);font-size:1rem;margin-bottom:14px}
+  .proof-text{font-size:0.9rem;color:var(--text);line-height:1.7;font-style:italic;margin-bottom:16px}
+  .proof-author{font-size:0.8rem;font-weight:600;color:var(--muted)}
+  .proof-author span{color:var(--trans-blue)}
+
+  footer{padding:48px 24px;text-align:center;border-top:1px solid var(--border);background:#0d0f14 !important;}
+  footer p{font-size:0.82rem;color:var(--muted)}
+  footer a{color:var(--trans-blue);text-decoration:none}
+
+  input.error,select.error{border-color:#ff6b6b}
+  .error-msg{color:#ff6b6b;font-size:0.78rem;margin-top:6px;display:none}
+  .error-msg.visible{display:block}
+
+  /* POWERED BY MT */
+  .powered-bar { display:flex; align-items:center; justify-content:center; gap:10px; padding:10px 24px; background:rgba(91,206,250,0.04); border-bottom:1px solid var(--border); }
+  .powered-bar span { font-size:0.72rem; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; color:var(--muted); }
+  .powered-bar a { display:flex; align-items:center; gap:7px; text-decoration:none; transition:opacity 0.2s; }
+  .powered-bar a:hover { opacity:0.8; }
+  .mt-wordmark { font-family:var(--font-display); font-size:0.95rem; font-style:italic; background:var(--trans-gradient); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; font-weight:400; letter-spacing:0.01em; }
+  .mt-badge { display:inline-flex; align-items:center; gap:6px; background:rgba(91,206,250,0.08); border:1px solid rgba(91,206,250,0.2); border-radius:100px; padding:4px 12px 4px 8px; }
+  .mt-badge-dot { width:6px; height:6px; border-radius:50%; background:var(--trans-gradient); flex-shrink:0; }
+  .mt-badge-text { font-size:0.7rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--trans-blue); }
+
+  /* MT footer brand strip */
+  .mt-footer-brand { display:flex; align-items:center; justify-content:center; gap:12px; margin-bottom:20px; flex-wrap:wrap; }
+  .mt-footer-logo { font-family:var(--font-display); font-style:italic; font-size:1.3rem; background:var(--trans-gradient); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+  .mt-footer-tagline { font-size:0.75rem; color:var(--muted); }
+
+  @media(max-width:600px){
+    .step{padding:24px 20px} .progress-header{padding:20px 24px 18px} .field-row{grid-template-columns:1fr} .macro-grid{grid-template-columns:1fr} .extras-grid,.cycling-grid,.cta-grid{grid-template-columns:1fr} .email-gate{padding:32px 20px 24px} .results-panel{padding:24px 20px}
+  }
+
+</style>
+
+<div style="background:#0d0f14 !important;min-height:100vh;width:100%;">
+<section class="hero">
+  <div class="hero-glow"></div>
+  <div style="position:relative;z-index:1;width:100%">
+    <div class="stripe-bar"><span></span><span></span><span></span><span></span><span></span></div>
+    <p class="hero-eyebrow">Transform Fitness Coaching by Trey Sheidler</p>
+    <h1>Nutrition built for <em>your</em> body, your journey.</h1>
+    <p class="hero-sub">The first macro calculator designed for trans, non-binary, and intersex bodies — accounting for HRT, body composition changes, and your actual goals.</p>
+    <a href="#calculator" class="cta-btn" data-ghl-action="scrollToCalc">
+      <span>Calculate My Macros</span>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+    </a>
+    <div class="trust-row">
+      <div class="trust-item"><div class="dot"></div><span>HRT-aware formulas</span></div>
+      <div class="trust-item"><div class="dot"></div><span>Intersex-inclusive</span></div>
+      <div class="trust-item"><div class="dot"></div><span>Trans-affirming</span></div>
+      <div class="trust-item"><div class="dot"></div><span>Free, always</span></div>
+    </div>
+    <div style="margin-top:28px;display:flex;align-items:center;justify-content:center;gap:10px">
+      <span style="font-size:0.72rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted)">Powered by</span>
+      <a href="https://www.mysticaltranscendence.com" target="_blank" rel="noopener" style="text-decoration:none">
+        <div class="mt-badge">
+          <div class="mt-badge-dot"></div>
+          <span class="mt-badge-text">Mystical Transcendence</span>
+        </div>
+      </a>
+    </div>
+  </div>
+  <div class="scroll-hint">
+    <span>scroll</span>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+  </div>
+</section>
+
+<div class="calc-wrapper" id="calculator">
+<div class="calc-card">
+
+  <!-- Powered by MT bar -->
+  <div class="powered-bar">
+    <span>Powered by</span>
+    <a href="https://www.mysticaltranscendence.com" target="_blank" rel="noopener">
+      <div class="mt-badge">
+        <div class="mt-badge-dot"></div>
+        <span class="mt-badge-text">Mystical Transcendence</span>
+      </div>
+    </a>
+    <span style="font-size:0.72rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted)">· Trans-Owned Supplements</span>
+  </div>
+
+  <div class="progress-header">
+    <div class="progress-label">
+      <strong id="step-title-label">Step 1 of 6</strong>
+      <span id="step-name-label">Body Stats</span>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:16.6%"></div></div>
+    <div class="step-dots">
+      <div class="step-dot active" id="dot-0"></div><div class="step-dot" id="dot-1"></div>
+      <div class="step-dot" id="dot-2"></div><div class="step-dot" id="dot-3"></div>
+      <div class="step-dot" id="dot-4"></div><div class="step-dot" id="dot-5"></div>
+    </div>
+  </div>
+
+  <div class="steps-container">
+
+    <!-- STEP 0: Body Stats -->
+    <div class="step active" id="step-0">
+      <h2 class="step-title">Your Body Stats</h2>
+      <p class="step-desc">All info is private and only used to calculate your macros. Choose your preferred units.</p>
+      <div class="unit-toggle">
+        <button class="unit-btn active" id="unit-imperial" data-ghl-action="setUnit" data-ghl-param="imperial">lbs / inches</button>
+        <button class="unit-btn" id="unit-metric" data-ghl-action="setUnit" data-ghl-param="metric">kg / cm</button>
+      </div>
+      <div class="field-row">
+        <div>
+          <label for="weight">Current Weight <span id="weight-unit-label">(lbs)</span></label>
+          <input type="number" id="weight" placeholder="e.g. 185" min="1" max="999">
+          <div class="error-msg" id="weight-err">Please enter your weight</div>
+        </div>
+        <div>
+          <label for="height">Height <span id="height-unit-label">(inches)</span></label>
+          <input type="number" id="height" placeholder="e.g. 68" min="1" max="999">
+          <div class="error-msg" id="height-err">Please enter your height</div>
+        </div>
+      </div>
+      <div class="field-group">
+        <label for="age">Age</label>
+        <input type="number" id="age" placeholder="e.g. 28" min="13" max="99">
+        <div class="error-msg" id="age-err">Please enter your age</div>
+      </div>
+      <div class="step-nav"><div></div><button class="btn-next" data-ghl-action="nextStep">Continue →</button></div>
+    </div>
+
+    <!-- STEP 1: Gender & Identity -->
+    <div class="step" id="step-1">
+      <h2 class="step-title">Gender & Identity</h2>
+      <p class="step-desc">These inputs directly shape your BMR and metabolic calculations. Your biology is specific to you — not a checkbox.</p>
+
+      <div class="field-group">
+        <label>Sex Characteristics at Birth</label>
+        <div class="pill-group">
+          <input type="radio" name="gaab" id="gaab-m" value="Male"><label for="gaab-m">Male (AMAB)</label>
+          <input type="radio" name="gaab" id="gaab-f" value="Female"><label for="gaab-f">Female (AFAB)</label>
+          <input type="radio" name="gaab" id="gaab-ix" value="Intersex"><label for="gaab-ix">Intersex</label>
+        </div>
+        <div class="error-msg" id="gaab-err">Please make a selection</div>
+      </div>
+
+      <div class="conditional-field" id="intersex-field">
+        <div class="intersex-note">
+          <strong>A note on intersex variation:</strong> Intersex covers many different biological presentations. To give you the most accurate metabolic estimate, we just need to know your current hormonal environment — not your specific diagnosis or condition.
+        </div>
+        <div class="field-group">
+          <label>What best describes your current hormonal environment?</label>
+          <div class="pill-group">
+            <input type="radio" name="horm-env" id="henv-estro" value="Estrogenic"><label for="henv-estro">Primarily estrogenic</label>
+            <input type="radio" name="horm-env" id="henv-andro" value="Androgenic"><label for="henv-andro">Primarily androgenic</label>
+            <input type="radio" name="horm-env" id="henv-mixed" value="Mixed"><label for="henv-mixed">Mixed / uncertain</label>
+            <input type="radio" name="horm-env" id="henv-hrt" value="HRT"><label for="henv-hrt">On hormone therapy</label>
+          </div>
+          <div class="error-msg" id="henv-err">Please select your hormonal environment</div>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label>Current Gender Identity</label>
+        <div class="pill-group">
+          <input type="radio" name="identity" id="id-m" value="Male"><label for="id-m">Man / Trans Man</label>
+          <input type="radio" name="identity" id="id-f" value="Female"><label for="id-f">Woman / Trans Woman</label>
+          <input type="radio" name="identity" id="id-nb" value="Non-binary"><label for="id-nb">Non-binary</label>
+          <input type="radio" name="identity" id="id-other" value="Other"><label for="id-other">Other / Prefer not to say</label>
+        </div>
+        <div class="error-msg" id="identity-err">Please make a selection</div>
+      </div>
+
+      <div class="info-note" id="identity-note" style="display:none">
+        <strong>Why this matters:</strong> <span id="identity-note-text"></span>
+      </div>
+
+      <div class="step-nav">
+        <button class="btn-back" data-ghl-action="prevStep">← Back</button>
+        <button class="btn-next" data-ghl-action="nextStep">Continue →</button>
+      </div>
+    </div>
+
+    <!-- STEP 2: HRT -->
+    <div class="step" id="step-2">
+      <h2 class="step-title">Hormone Therapy</h2>
+      <p class="step-desc">HRT meaningfully changes how your body burns calories and builds muscle. This is what makes this calculator different from everything else out there.</p>
+
+      <label style="text-transform:none;letter-spacing:0;font-size:0.9rem;font-weight:400;color:var(--text);margin-bottom:0">Are you currently on hormone therapy?</label>
+      <div class="toggle-field" data-ghl-action="toggleHRT" style="margin-top:12px">
+        <span class="toggle-field-label" id="hrt-toggle-label">No</span>
+        <button class="toggle-switch" id="hrt-toggle" data-ghl-action="toggleHRT"></button>
+      </div>
+      <div class="conditional-field" id="hrt-months-field">
+        <div class="field-group">
+          <label for="hrt-duration">How long have you been on HRT? (months)</label>
+          <input type="number" id="hrt-duration" placeholder="e.g. 18" min="0" max="600">
+        </div>
+      </div>
+      <div class="info-note" id="hrt-note" style="display:none">
+        <strong>Your HRT adjustment:</strong> <span id="hrt-note-text"></span>
+      </div>
+      <div class="step-nav">
+        <button class="btn-back" data-ghl-action="prevStep">← Back</button>
+        <button class="btn-next" data-ghl-action="nextStep">Continue →</button>
+      </div>
+    </div>
+
+    <!-- STEP 3: Activity & Goal -->
+    <div class="step" id="step-3">
+      <h2 class="step-title">Activity & Goals</h2>
+      <p class="step-desc">Be honest — activity level affects your calorie target more than almost any other input.</p>
+      <div class="field-group">
+        <label>Activity Level</label>
+        <select id="activity">
+          <option value="">Select your activity level…</option>
+          <option value="1.2">Sedentary (desk job, little exercise)</option>
+          <option value="1.375">Lightly Active (1–3 days/week)</option>
+          <option value="1.55">Moderately Active (3–5 days/week)</option>
+          <option value="1.725">Very Active (6–7 days/week)</option>
+          <option value="1.9">Extremely Active (athlete / physical job)</option>
+        </select>
+        <div class="error-msg" id="activity-err">Please select your activity level</div>
+      </div>
+      <div class="field-group">
+        <label>Primary Goal</label>
+        <div class="pill-group">
+          <input type="radio" name="goal" id="goal-loss" value="Fat Loss"><label for="goal-loss">Fat Loss</label>
+          <input type="radio" name="goal" id="goal-recomp" value="Recomp"><label for="goal-recomp">Body Recomp</label>
+          <input type="radio" name="goal" id="goal-gain" value="Muscle Gain"><label for="goal-gain">Muscle Gain</label>
+          <input type="radio" name="goal" id="goal-maintain" value="Maintenance"><label for="goal-maintain">Maintenance</label>
+        </div>
+        <div class="error-msg" id="goal-err">Please select your goal</div>
+      </div>
+      <div class="step-nav">
+        <button class="btn-back" data-ghl-action="prevStep">← Back</button>
+        <button class="btn-next" data-ghl-action="nextStep">Continue →</button>
+      </div>
+    </div>
+
+    <!-- STEP 4: Quick Segmentation -->
+    <div class="step" id="step-4">
+      <h2 class="step-title">One Quick Thing</h2>
+      <p class="step-desc">Three quick questions so we can send you content that's actually relevant to where you are in your journey.</p>
+      <div class="field-group">
+        <label>What's your biggest challenge right now?</label>
+        <div class="pill-group">
+          <input type="radio" name="challenge" id="ch-scale" value="Scale not moving"><label for="ch-scale">Scale not moving</label>
+          <input type="radio" name="challenge" id="ch-food" value="Don't know what to eat"><label for="ch-food">Don't know what to eat</label>
+          <input type="radio" name="challenge" id="ch-program" value="No structured program"><label for="ch-program">No structured program</label>
+          <input type="radio" name="challenge" id="ch-accountability" value="Need accountability"><label for="ch-accountability">Need accountability</label>
+          <input type="radio" name="challenge" id="ch-starting" value="Just starting out"><label for="ch-starting">Just starting out</label>
+        </div>
+      </div>
+      <div class="field-group">
+        <label>Have you heard of GLP-1 medical weight loss coaching?</label>
+        <div class="pill-group">
+          <input type="radio" name="glp1" id="glp-yes" value="Yes"><label for="glp-yes">Yes, I know about it</label>
+          <input type="radio" name="glp1" id="glp-no" value="No"><label for="glp-no">No, tell me more</label>
+          <input type="radio" name="glp1" id="glp-interested" value="Interested"><label for="glp-interested">Interested in it</label>
+        </div>
+      </div>
+      <div class="field-group">
+        <label>Interested in a free community of trans people on the same journey?</label>
+        <div class="pill-group">
+          <input type="radio" name="community" id="comm-yes" value="Yes"><label for="comm-yes">Yes, definitely</label>
+          <input type="radio" name="community" id="comm-maybe" value="Maybe"><label for="comm-maybe">Maybe later</label>
+          <input type="radio" name="community" id="comm-no" value="No"><label for="comm-no">Not right now</label>
+        </div>
+      </div>
+      <div class="step-nav">
+        <button class="btn-back" data-ghl-action="prevStep">← Back</button>
+        <button class="btn-next" data-ghl-action="nextStep">Almost there →</button>
+      </div>
+    </div>
+
+    <!-- STEP 5: Email Gate -->
+    <div class="step" id="step-5">
+      <div class="email-gate">
+        <div class="lock-icon">✨</div>
+        <h2>Your macros are ready!</h2>
+        <p>Enter your details to unlock your personalized plan, plus a free guide on training & nutrition for your body and HRT stage.</p>
+        <div class="gate-fields">
+          <label for="fname">First Name</label>
+          <input type="text" id="fname" placeholder="Your first name">
+
+          <label for="email" style="margin-top:4px">Email Address</label>
+          <input type="email" id="email" placeholder="your@email.com">
+          <div class="error-msg" id="email-err">Please enter a valid email address</div>
+
+          <label style="margin-top:4px">Phone Number <span class="optional-tag">(optional)</span></label>
+          <input type="tel" id="phone" placeholder="e.g. (317) 555-0100">
+          <p class="privacy-note" style="text-align:left;margin-top:4px;margin-bottom:0">📱 If provided, we'll text you an SMS-friendly macro summary + optional weekly check-in reminders.</p>
+
+          <button class="btn-next" data-ghl-action="showResults" style="margin-top:20px">Unlock My Results →</button>
+          <p class="privacy-note" style="margin-top:12px">🔒 Your info is private. No spam, ever. Unsubscribe anytime.</p>
+        </div>
+      </div>
+      <div class="step-nav" style="padding:16px 36px;border-top:1px solid var(--border)">
+        <button class="btn-back" data-ghl-action="prevStep">← Back</button>
+        <div></div>
+      </div>
+    </div>
+
+  </div><!-- /steps -->
+
+  <!-- RESULTS -->
+  <div class="results-panel" id="results-panel">
+    <div class="results-hero">
+      <p class="calorie-label">YOUR DAILY CALORIE TARGET</p>
+      <div class="calorie-big" id="r-calories">—</div>
+      <p class="calorie-label">CALORIES / DAY</p>
+      <p style="font-size:0.82rem;color:var(--muted);margin-top:10px" id="r-goal-label">—</p>
+    </div>
+
+    <div class="macro-grid">
+      <div class="macro-card protein"><div class="macro-name">Protein</div><div class="macro-grams" id="r-protein">—</div><div class="macro-unit">grams / day</div><div class="macro-cals" id="r-protein-cals">—</div></div>
+      <div class="macro-card carbs"><div class="macro-name">Carbs</div><div class="macro-grams" id="r-carbs">—</div><div class="macro-unit">grams / day</div><div class="macro-cals" id="r-carbs-cals">—</div></div>
+      <div class="macro-card fats"><div class="macro-name">Fats</div><div class="macro-grams" id="r-fats">—</div><div class="macro-unit">grams / day</div><div class="macro-cals" id="r-fats-cals">—</div></div>
+    </div>
+
+    <div class="insight-box">
+      <h4>🏳️‍⚧️ Your Personalized Adjustment</h4>
+      <p id="hrt-insight-text">—</p>
+    </div>
+
+    <div class="cycling-section">
+      <h3>Weekly Calorie Cycling</h3>
+      <p>Eating more on training days and less on rest days optimizes body recomp results. Your personalized split:</p>
+      <div class="cycling-grid">
+        <div class="cycling-card training"><div class="day-type">🏋️ Training Days</div><div class="day-cals" id="r-train-cals">—</div><div class="day-note">calories</div></div>
+        <div class="cycling-card rest"><div class="day-type">😴 Rest Days</div><div class="day-cals" id="r-rest-cals">—</div><div class="day-note">calories</div></div>
+      </div>
+    </div>
+
+    <div class="supp-box">
+      <div class="supp-icon" id="supp-icon">💊</div>
+      <div class="supp-content">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+          <h4 id="supp-title" style="margin:0">Recommended for your goal</h4>
+          <a href="https://www.mysticaltranscendence.com" target="_blank" rel="noopener" style="font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);text-decoration:none;border:1px solid var(--border);border-radius:100px;padding:2px 8px;white-space:nowrap;flex-shrink:0">by Mystical Transcendence ↗</a>
+        </div>
+        <p id="supp-text">—</p>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:10px">
+          <a href="#" class="supp-link" id="supp-link" target="_blank" rel="noopener">Shop the supplement →</a>
+          <a href="#" class="supp-link" id="supp-link-secondary" target="_blank" rel="noopener" style="color:var(--trans-pink);border-color:rgba(245,169,184,0.3)"></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="extras-grid">
+      <div class="extra-card"><div class="extra-label">Daily Fiber</div><div class="extra-value" id="r-fiber">—</div><div class="extra-note">grams/day for gut health</div></div>
+      <div class="extra-card"><div class="extra-label">Daily Water</div><div class="extra-value" id="r-water">—</div><div class="extra-note" id="r-water-unit">oz/day minimum</div></div>
+      <div class="extra-card"><div class="extra-label">BMR (at rest)</div><div class="extra-value" id="r-bmr">—</div><div class="extra-note">calories if you did nothing</div></div>
+      <div class="extra-card"><div class="extra-label">Adjusted TDEE</div><div class="extra-value" id="r-tdee">—</div><div class="extra-note">before goal adjustment</div></div>
+    </div>
+
+    <h3 style="font-family:var(--font-display);font-size:1.2rem;color:var(--trans-white);margin-bottom:16px">Suggested Meal Breakdown</h3>
+    <table class="meal-table">
+      <thead><tr><th>Meal</th><th>Protein</th><th>Carbs</th><th>Fats</th><th>Calories</th></tr></thead>
+      <tbody id="meal-table-body"></tbody>
+    </table>
+
+    <div class="cta-grid">
+      <div class="cta-mini" data-ghl-action="openSkool">
+        <div class="cta-icon">🏳️‍⚧️</div>
+        <h4>Join the Free Community</h4>
+        <p>Trans people supporting each other — no explaining your pronouns required</p>
+      </div>
+      <div class="cta-mini" data-ghl-action="openEssentials">
+        <div class="cta-icon">📱</div>
+        <h4>Track with Essentials</h4>
+        <p>Workouts, meal plans & metrics built for your transition journey</p>
+      </div>
+    </div>
+
+    <div class="results-cta">
+      <h3 id="cta-headline">What happens next?</h3>
+      <p id="cta-body">You're on the list. Trey will be in touch with a personalized guide based on your results — plus tips for your specific HRT stage and goal. In the meantime, explore the community and the tools below.</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:4px">
+        <a href="https://www.instagram.com/treynertrey" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;gap:8px;background:var(--bg3);border:1px solid var(--border);border-radius:100px;padding:13px 20px;text-decoration:none;color:var(--text);font-size:0.85rem;font-weight:600;transition:border-color 0.2s" onmouseover="this.style.borderColor='var(--trans-blue)'" onmouseout="this.style.borderColor='var(--border)'">
+          <span>📸</span> Follow @treynertrey
+        </a>
+        <a href="https://www.mysticaltranscendence.com" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;gap:8px;background:var(--trans-gradient);border-radius:100px;padding:13px 20px;text-decoration:none;color:#0d0f14;font-size:0.85rem;font-weight:600;transition:opacity 0.2s" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
+          <span>💊</span> Shop Supplements
+        </a>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /calc-card -->
+</div><!-- /calc-wrapper -->
+
+<section class="social-proof">
+  <div style="text-align:center;max-width:600px;margin:0 auto 48px">
+    <p style="font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--trans-pink);margin-bottom:16px">What clients are saying</p>
+    <h2 style="font-family:var(--font-display);font-size:2rem;color:var(--trans-white)">Real results, real community.</h2>
+  </div>
+  <div class="proof-grid">
+    <div class="proof-card"><div class="proof-stars">★★★★★</div><p class="proof-text">"Finally a coach who actually gets it. Trey accounted for my T levels, my training age, everything. Down 22 lbs in 4 months."</p><div class="proof-author">Marcus D. · <span>Trans man, 8 months on T</span></div></div>
+    <div class="proof-card"><div class="proof-stars">★★★★★</div><p class="proof-text">"I've tried every calculator out there and they all give me female defaults. This one actually sees me. The HRT adjustment is a game changer."</p><div class="proof-author">Jordan K. · <span>Non-binary, 2 years HRT</span></div></div>
+    <div class="proof-card"><div class="proof-stars">★★★★★</div><p class="proof-text">"Trey understands the intersection of gender and fitness in a way no cis coach does. Best investment I've made in my transition."</p><div class="proof-author">Alex R. · <span>Trans man, pre-T</span></div></div>
+  </div>
+</section>
+
+<footer>
+  <div class="mt-footer-brand">
+    <div class="stripe-bar" style="margin:0;width:80px"></div>
+    <div>
+      <div style="font-size:0.7rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;text-align:center">In partnership with</div>
+      <a href="https://www.mysticaltranscendence.com" target="_blank" rel="noopener" style="text-decoration:none;display:flex;align-items:center;gap:8px">
+        <span class="mt-footer-logo">Mystical Transcendence</span>
+        <span style="font-size:0.7rem;color:var(--muted)">↗</span>
+      </a>
+      <div class="mt-footer-tagline" style="text-align:center">Trans-owned · Queer-led · Science-backed</div>
+    </div>
+    <div class="stripe-bar" style="margin:0;width:80px"></div>
+  </div>
+  <p style="margin-bottom:10px">
+    <a href="https://www.instagram.com/treynertrey" target="_blank" rel="noopener">@treynertrey</a> ·
+    <a href="https://www.skool.com/transformfitnesscommunity" target="_blank" rel="noopener">Join the Community</a> ·
+    <a href="https://www.transformfitness.net/essentials" target="_blank" rel="noopener">Essentials App</a>
+  </p>
+  <p style="margin-bottom:10px">
+    <a href="https://www.instagram.com/mysticaltranscendence" target="_blank" rel="noopener">@mysticaltranscendence</a> ·
+    <a href="https://www.tiktok.com/@mysticaltranscendence" target="_blank" rel="noopener">TikTok</a> ·
+    <a href="https://www.mysticaltranscendence.com" target="_blank" rel="noopener">Shop Supplements</a>
+  </p>
+  <p>© 2025 Transform Fitness Coaching by Trey Sheidler</p>
+  <p style="margin-top:8px">Macro calculations are educational estimates. Consult a registered dietitian for medical nutrition therapy.</p>
+</footer>
+
+<script>
+  let currentStep = 0;
+  const totalSteps = 6;
+  let hrtOn = false;
+  let useMetric = false;
+  const stepNames = ['Body Stats','Gender & Identity','Hormone Therapy','Activity & Goals','Quick Questions','Your Results'];
+
+  function scrollToCalc(e) { e.preventDefault(); document.getElementById('calculator').scrollIntoView({behavior:'smooth',block:'start'}); }
+
+  function setUnit(u) {
+    useMetric = u === 'metric';
+    document.getElementById('unit-imperial').classList.toggle('active', !useMetric);
+    document.getElementById('unit-metric').classList.toggle('active', useMetric);
+    document.getElementById('weight-unit-label').textContent = useMetric ? '(kg)' : '(lbs)';
+    document.getElementById('height-unit-label').textContent = useMetric ? '(cm)' : '(inches)';
+    document.getElementById('weight').placeholder = useMetric ? 'e.g. 84' : 'e.g. 185';
+    document.getElementById('height').placeholder = useMetric ? 'e.g. 173' : 'e.g. 68';
+  }
+
+  function updateProgress() {
+    const pct = ((currentStep+1)/totalSteps)*100;
+    document.getElementById('progress-fill').style.width = pct+'%';
+    document.getElementById('step-title-label').textContent = `Step ${currentStep+1} of ${totalSteps}`;
+    document.getElementById('step-name-label').textContent = stepNames[currentStep];
+    for (let i=0;i<totalSteps;i++) {
+      document.getElementById('dot-'+i).className = 'step-dot'+(i<currentStep?' done':i===currentStep?' active':'');
+    }
+  }
+
+  function showErr(id) { document.getElementById(id).classList.add('visible'); const el=document.getElementById(id.replace('-err','')); if(el) el.classList.add('error'); }
+  function hideErr(id) { document.getElementById(id).classList.remove('visible'); const el=document.getElementById(id.replace('-err','')); if(el) el.classList.remove('error'); }
+
+  function validateStep() {
+    if (currentStep===0) {
+      let ok=true;
+      if (!document.getElementById('weight').value) { showErr('weight-err'); ok=false; } else hideErr('weight-err');
+      if (!document.getElementById('height').value) { showErr('height-err'); ok=false; } else hideErr('height-err');
+      if (!document.getElementById('age').value||document.getElementById('age').value<13) { showErr('age-err'); ok=false; } else hideErr('age-err');
+      return ok;
+    }
+    if (currentStep===1) {
+      let ok=true;
+      const gaab=document.querySelector('input[name="gaab"]:checked');
+      if (!gaab) { showErr('gaab-err'); ok=false; } else hideErr('gaab-err');
+      if (gaab&&gaab.value==='Intersex'&&!document.querySelector('input[name="horm-env"]:checked')) { showErr('henv-err'); ok=false; } else hideErr('henv-err');
+      if (!document.querySelector('input[name="identity"]:checked')) { showErr('identity-err'); ok=false; } else hideErr('identity-err');
+      return ok;
+    }
+    if (currentStep===3) {
+      let ok=true;
+      if (!document.getElementById('activity').value) { showErr('activity-err'); ok=false; } else hideErr('activity-err');
+      if (!document.querySelector('input[name="goal"]:checked')) { showErr('goal-err'); ok=false; } else hideErr('goal-err');
+      return ok;
+    }
+    return true;
+  }
+
+  function nextStep() {
+    if (!validateStep()) return;
+    document.getElementById('step-'+currentStep).classList.remove('active');
+    currentStep++;
+    document.getElementById('step-'+currentStep).classList.add('active');
+    updateProgress(); updateIdentityNote(); updateHRTNote();
+  }
+  function prevStep() {
+    document.getElementById('step-'+currentStep).classList.remove('active');
+    currentStep--;
+    document.getElementById('step-'+currentStep).classList.add('active');
+    updateProgress();
+  }
+
+  document.querySelectorAll('input[name="gaab"]').forEach(el => {
+    el.addEventListener('change', function() {
+      document.getElementById('intersex-field').classList.toggle('visible', this.value==='Intersex');
+      updateIdentityNote();
+    });
+  });
+
+  function toggleHRT() {
+    hrtOn=!hrtOn;
+    document.getElementById('hrt-toggle').classList.toggle('on',hrtOn);
+    document.getElementById('hrt-toggle-label').textContent=hrtOn?'Yes':'No';
+    document.getElementById('hrt-months-field').classList.toggle('visible',hrtOn);
+    updateHRTNote();
+  }
+
+  function getGAAB() {
+    const gaab=document.querySelector('input[name="gaab"]:checked');
+    if (!gaab) return null;
+    if (gaab.value==='Intersex') {
+      const henv=document.querySelector('input[name="horm-env"]:checked');
+      if (!henv) return 'Intersex-Mixed';
+      if (henv.value==='Androgenic') return 'Male';
+      if (henv.value==='Estrogenic') return 'Female';
+      if (henv.value==='HRT') return 'Intersex-HRT';
+      return 'Intersex-Mixed';
+    }
+    return gaab.value;
+  }
+
+  function updateIdentityNote() {
+    if (currentStep!==1) return;
+    const gaab=document.querySelector('input[name="gaab"]:checked');
+    const id=document.querySelector('input[name="identity"]:checked');
+    if (!gaab||!id) return;
+    const note=document.getElementById('identity-note');
+    const txt=document.getElementById('identity-note-text');
+    const msgs={
+      'Female-Male':'As a trans man (AFAB), testosterone typically increases your metabolic rate up to ~22% over 24 months. Your BMR gradually shifts toward male-range values as HRT continues.',
+      'Male-Female':'As a trans woman (AMAB), estrogen + T-blockers gradually reduce your metabolic rate by up to ~6% over 6 months.',
+      'Female-Non-binary':'For non-binary folks (AFAB), we apply a partial upward metabolic adjustment reflecting partial or low-dose HRT.',
+      'Male-Non-binary':'For non-binary folks (AMAB), we apply a partial downward metabolic adjustment.',
+      'Intersex-any':'For intersex individuals, we calculate your BMR from your hormonal environment rather than a binary birth sex assumption — giving you a more accurate baseline.',
+    };
+    let key = gaab.value==='Intersex' ? 'Intersex-any' : `${gaab.value}-${id.value}`;
+    const msg = msgs[key] || '';
+    if (msg) { txt.textContent=msg; note.style.display='block'; } else { note.style.display='none'; }
+  }
+
+  function updateHRTNote() {
+    if (currentStep!==2) return;
+    const note=document.getElementById('hrt-note');
+    if (!hrtOn) { note.style.display='none'; return; }
+    const gaab=getGAAB();
+    const id=document.querySelector('input[name="identity"]:checked');
+    const months=parseFloat(document.getElementById('hrt-duration').value)||0;
+    if (!gaab||!id) return;
+    const factor=calcHRTFactor(gaab,id.value,months);
+    const pct=Math.round((factor-1)*100);
+    document.getElementById('hrt-note-text').textContent=`Based on ${months} months on HRT, we're adjusting your TDEE by ${pct>0?'+':''}${pct}% to reflect your changing metabolism.`;
+    note.style.display='block';
+  }
+
+  document.querySelectorAll('input[name="identity"]').forEach(el=>el.addEventListener('change',updateIdentityNote));
+  document.getElementById('hrt-duration').addEventListener('input',updateHRTNote);
+
+  function calcHRTFactor(gaab,identity,months) {
+    if (!hrtOn) return 1;
+    // Trans women / AMAB moving toward female hormones
+    if ((gaab==='Male'||gaab==='Intersex-HRT')&&identity==='Female') return months<6?1-0.01*months:0.94;
+    // Trans men / AFAB moving toward male hormones
+    if ((gaab==='Female'||gaab==='Intersex-HRT')&&identity==='Male') {
+      if (months<=12) return 1+0.015*months;
+      if (months<=24) return 1.18+0.003*(months-12);
+      return 1.216;
+    }
+    if (identity==='Non-binary') {
+      if (gaab==='Male') return 0.97;
+      if (gaab==='Female') return 1.09;
+      return 1.03; // Intersex non-binary
+    }
+    if (gaab==='Intersex-Mixed') return 1.0;
+    return 1;
+  }
+
+  function calcBMR(weight_lbs,height_in,age,gaab,identity,months) {
+    const wk=weight_lbs*0.453592, hc=height_in*2.54;
+    if (gaab==='Intersex-Mixed') return 10*wk+6.25*hc-5*age-78; // avg of +5 and -161
+    if ((gaab==='Female'||gaab==='Intersex-HRT')&&identity==='Male'&&hrtOn) {
+      const progress=Math.min(months/24,1);
+      return 10*wk+6.25*hc-5*age+(-161+166*progress);
+    }
+    return 10*wk+6.25*hc-5*age+(gaab==='Male'?5:-161);
+  }
+
+  const MT = 'https://www.mysticaltranscendence.com';
+  function getSupplementRec(goal,gaab,identity,months) {
+    const isTransMan=(identity==='Male'&&gaab!=='Male');
+    if (goal==='Muscle Gain'||(isTransMan&&months>6&&hrtOn)) return {
+      icon:'💪',
+      title:'Surge Creatine + Protein — Top pick for your goal',
+      text:'Trans men on T see amplified muscle gains with creatine monohydrate. Surge by Mystical Transcendence is third-party tested, one ingredient, clinically backed. Stack it with MT protein and this is the highest-leverage supplement combo you can take right now.',
+      link:'Shop Surge Creatine →',
+      href: MT+'/products/morph-creatine',
+      secondary:'Shop Protein →',
+      secondaryHref: MT+'/collections/protein-1'
+    };
+    if (goal==='Fat Loss') return {
+      icon:'🔥',
+      title:'Protein + Recovery Stack — Fat loss essentials',
+      text:'High protein intake preserves muscle during a caloric deficit. Mystical Transcendence's protein formulas are designed for queer athletes — no bro-science, no weird energy. Stack with recovery & hydration to keep performance up during your deficit.',
+      link:'Shop Protein →',
+      href: MT+'/collections/protein-1',
+      secondary:'Shop Recovery →',
+      secondaryHref: MT+'/collections/recovery-hydration'
+    };
+    if (goal==='Recomp') return {
+      icon:'⚖️',
+      title:'Surge Creatine + Recovery — Recomp stack',
+      text:'Creatine supports muscle preservation during a slight deficit while recovery formulas support joint health as your body composition shifts. Both are staples for clients in a recomp phase.',
+      link:'Shop Surge Creatine →',
+      href: MT+'/products/morph-creatine',
+      secondary:'Shop Recovery →',
+      secondaryHref: MT+'/collections/recovery-hydration'
+    };
+    return {
+      icon:'🌱',
+      title:'Premium Sports Nutrition — Maintenance essentials',
+      text:'For maintenance, keep it simple: a quality protein source to hit your daily target and a solid recovery formula. Mystical Transcendence's sports nutrition line is built for queer athletes at every level.',
+      link:'Shop Sports Nutrition →',
+      href: MT+'/collections/premium-sports-nutrition',
+      secondary:'Shop All Products →',
+      secondaryHref: MT+'/collections/all'
+    };
+  }
+
+  function showResults() {
+    const email=document.getElementById('email').value;
+    if (!email||!email.includes('@')||!email.includes('.')) { showErr('email-err'); return; }
+    hideErr('email-err');
+
+    const weightRaw=parseFloat(document.getElementById('weight').value);
+    const heightRaw=parseFloat(document.getElementById('height').value);
+    const age=parseFloat(document.getElementById('age').value);
+    const weight_lbs=useMetric?weightRaw*2.20462:weightRaw;
+    const height_in=useMetric?heightRaw/2.54:heightRaw;
+
+    const gaabRaw=document.querySelector('input[name="gaab"]:checked').value;
+    const gaab=getGAAB();
+    const identity=document.querySelector('input[name="identity"]:checked').value;
+    const activityMult=parseFloat(document.getElementById('activity').value);
+    const goal=document.querySelector('input[name="goal"]:checked').value;
+    const hrtMonths=hrtOn?(parseFloat(document.getElementById('hrt-duration').value)||0):0;
+    const glp1=document.querySelector('input[name="glp1"]:checked')?.value||'';
+
+    const bmr=Math.round(calcBMR(weight_lbs,height_in,age,gaab,identity,hrtMonths));
+    const tdee=Math.round(bmr*activityMult);
+    const hrtFactor=calcHRTFactor(gaab,identity,hrtMonths);
+    const adjTDEE=Math.round(tdee*hrtFactor);
+    const goalAdj={'Fat Loss':-500,'Muscle Gain':300,'Recomp':-200,'Maintenance':0}[goal]||0;
+    const targetCals=Math.round(adjTDEE+goalAdj);
+
+    let proteinPerLb=goal==='Muscle Gain'?1.1:goal==='Fat Loss'?1.2:0.9;
+    if ((gaab==='Female'||gaab==='Intersex-HRT')&&identity==='Male'&&hrtOn&&hrtMonths>12) proteinPerLb=Math.min(proteinPerLb+0.1,1.3);
+    const protein=Math.round(weight_lbs*proteinPerLb);
+    const fats=Math.round((targetCals*0.25)/9);
+    const carbs=Math.max(Math.round((targetCals-(protein*4)-(fats*9))/4),0);
+    const fiber=Math.round(targetCals/1000*14);
+    const water_oz=Math.round(weight_lbs*0.67);
+    const trainCals=Math.round(targetCals*1.1);
+    const restCals=Math.round(targetCals*0.9);
+
+    let insightText='';
+    if (gaabRaw==='Intersex') {
+      const henv=document.querySelector('input[name="horm-env"]:checked')?.value||'Mixed';
+      insightText=`Your BMR is calculated from your hormonal environment (${henv.toLowerCase()}) rather than a binary birth sex assumption.${hrtOn?` With ${hrtMonths} months on HRT, a ${Math.round((hrtFactor-1)*100)}% metabolic adjustment has been applied.`:' No HRT adjustment applied.'}`;
+    } else if (!hrtOn) {
+      insightText='No HRT adjustment applied. Your macros are based on your current hormonal baseline.';
+    } else if (gaab==='Female'&&identity==='Male') {
+      const pct=Math.round((hrtFactor-1)*100);
+      insightText=`After ${hrtMonths} months on T, your metabolic rate has increased by ~${pct}%. Protein target is elevated to ${proteinPerLb.toFixed(1)}g/lb to support muscle synthesis. Reassess at your 6, 12, and 24 month marks.`;
+    } else if (gaab==='Male'&&identity==='Female') {
+      const pct=Math.round((1-hrtFactor)*100);
+      insightText=`After ${hrtMonths} months on HRT, your metabolic rate has decreased by ~${pct}%. Targets are adjusted accordingly. Don't under-eat — your body needs fuel to transition.`;
+    } else if (identity==='Non-binary') {
+      insightText=`A ${Math.round((hrtFactor-1)*100)}% metabolic adjustment has been applied based on your hormonal environment.`;
+    }
+
+    document.getElementById('r-calories').textContent=targetCals.toLocaleString();
+    document.getElementById('r-goal-label').textContent=`Goal: ${goal} · HRT Adjustment: ${Math.round((hrtFactor-1)*100)}%`;
+    document.getElementById('r-protein').textContent=protein;
+    document.getElementById('r-protein-cals').textContent=(protein*4)+' cal';
+    document.getElementById('r-carbs').textContent=carbs;
+    document.getElementById('r-carbs-cals').textContent=(carbs*4)+' cal';
+    document.getElementById('r-fats').textContent=fats;
+    document.getElementById('r-fats-cals').textContent=(fats*9)+' cal';
+    document.getElementById('hrt-insight-text').textContent=insightText;
+    document.getElementById('r-train-cals').textContent=trainCals.toLocaleString();
+    document.getElementById('r-rest-cals').textContent=restCals.toLocaleString();
+    document.getElementById('r-fiber').textContent=fiber+'g';
+    document.getElementById('r-water').textContent=useMetric?Math.round(water_oz*29.57)+' ml':water_oz+' oz';
+    document.getElementById('r-water-unit').textContent=useMetric?'ml/day minimum':'oz/day minimum';
+    document.getElementById('r-bmr').textContent=bmr.toLocaleString();
+    document.getElementById('r-tdee').textContent=adjTDEE.toLocaleString();
+
+    const supp=getSupplementRec(goal,gaab,identity,hrtMonths);
+    document.getElementById('supp-icon').textContent=supp.icon;
+    document.getElementById('supp-title').textContent=supp.title;
+    document.getElementById('supp-text').textContent=supp.text;
+    document.getElementById('supp-link').textContent=supp.link;
+    document.getElementById('supp-link').href=supp.href;
+    const sec=document.getElementById('supp-link-secondary');
+    sec.textContent=supp.secondary;
+    sec.href=supp.secondaryHref;
+    sec.style.display=supp.secondary?'inline':'none';
+
+    if (glp1==='Interested'||glp1==='No') {
+      document.getElementById('cta-headline').textContent='Have you heard about GLP-1 weight loss coaching?';
+      document.getElementById('cta-body').textContent='GLP-1 medications combined with trans-affirming coaching can be a powerful tool for sustainable fat loss. Book a free call to see if it\'s right for you.';
+    }
+
+    const meals=[{name:'Breakfast',p:0.25,c:0.25,f:0.25,cal:0.25},{name:'Lunch',p:0.30,c:0.30,f:0.30,cal:0.30},{name:'Dinner',p:0.35,c:0.35,f:0.30,cal:0.30},{name:'Snack',p:0.10,c:0.10,f:0.15,cal:0.15}];
+    document.getElementById('meal-table-body').innerHTML=meals.map(m=>`<tr><td>${m.name}</td><td>${Math.round(protein*m.p)}g</td><td>${Math.round(carbs*m.c)}g</td><td>${Math.round(fats*m.f)}g</td><td>${Math.round(targetCals*m.cal)}</td></tr>`).join('');
+
+    document.getElementById('step-5').style.display='none';
+    document.getElementById('results-panel').classList.add('active');
+    document.querySelector('.progress-header').style.display='none';
+    document.getElementById('calculator').scrollIntoView({behavior:'smooth',block:'start'});
+  }
+</script>
+</div>
+
+<script>
+  const GHL_WEBHOOK_URL = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4nx5JQk1dIv/webhook-trigger/4225bc15-d69d-4b04-9fd6-b95490bd3ba5';
+  const GHL_NEXT_STEP_URL = '';
+
+let currentStep = 0;
+  const totalSteps = 6;
+  let hrtOn = false;
+  let useMetric = false;
+  const stepNames = ['Body Stats','Gender & Identity','Hormone Therapy','Activity & Goals','Quick Questions','Your Results'];
+
+  function scrollToCalc(e) { e.preventDefault(); document.getElementById('calculator').scrollIntoView({behavior:'smooth',block:'start'}); }
+
+  function setUnit(u) {
+    useMetric = u === 'metric';
+    document.getElementById('unit-imperial').classList.toggle('active', !useMetric);
+    document.getElementById('unit-metric').classList.toggle('active', useMetric);
+    document.getElementById('weight-unit-label').textContent = useMetric ? '(kg)' : '(lbs)';
+    document.getElementById('height-unit-label').textContent = useMetric ? '(cm)' : '(inches)';
+    document.getElementById('weight').placeholder = useMetric ? 'e.g. 84' : 'e.g. 185';
+    document.getElementById('height').placeholder = useMetric ? 'e.g. 173' : 'e.g. 68';
+  }
+
+  function updateProgress() {
+    const pct = ((currentStep+1)/totalSteps)*100;
+    document.getElementById('progress-fill').style.width = pct+'%';
+    document.getElementById('step-title-label').textContent = `Step ${currentStep+1} of ${totalSteps}`;
+    document.getElementById('step-name-label').textContent = stepNames[currentStep];
+    for (let i=0;i<totalSteps;i++) {
+      document.getElementById('dot-'+i).className = 'step-dot'+(i<currentStep?' done':i===currentStep?' active':'');
+    }
+  }
+
+  function showErr(id) { document.getElementById(id).classList.add('visible'); const el=document.getElementById(id.replace('-err','')); if(el) el.classList.add('error'); }
+  function hideErr(id) { document.getElementById(id).classList.remove('visible'); const el=document.getElementById(id.replace('-err','')); if(el) el.classList.remove('error'); }
+
+  function validateStep() {
+    if (currentStep===0) {
+      let ok=true;
+      if (!document.getElementById('weight').value) { showErr('weight-err'); ok=false; } else hideErr('weight-err');
+      if (!document.getElementById('height').value) { showErr('height-err'); ok=false; } else hideErr('height-err');
+      if (!document.getElementById('age').value||document.getElementById('age').value<13) { showErr('age-err'); ok=false; } else hideErr('age-err');
+      return ok;
+    }
+    if (currentStep===1) {
+      let ok=true;
+      const gaab=document.querySelector('input[name="gaab"]:checked');
+      if (!gaab) { showErr('gaab-err'); ok=false; } else hideErr('gaab-err');
+      if (gaab&&gaab.value==='Intersex'&&!document.querySelector('input[name="horm-env"]:checked')) { showErr('henv-err'); ok=false; } else hideErr('henv-err');
+      if (!document.querySelector('input[name="identity"]:checked')) { showErr('identity-err'); ok=false; } else hideErr('identity-err');
+      return ok;
+    }
+    if (currentStep===3) {
+      let ok=true;
+      if (!document.getElementById('activity').value) { showErr('activity-err'); ok=false; } else hideErr('activity-err');
+      if (!document.querySelector('input[name="goal"]:checked')) { showErr('goal-err'); ok=false; } else hideErr('goal-err');
+      return ok;
+    }
+    return true;
+  }
+
+  function nextStep() {
+    if (!validateStep()) return;
+    document.getElementById('step-'+currentStep).classList.remove('active');
+    currentStep++;
+    document.getElementById('step-'+currentStep).classList.add('active');
+    updateProgress(); updateIdentityNote(); updateHRTNote();
+  }
+  function prevStep() {
+    document.getElementById('step-'+currentStep).classList.remove('active');
+    currentStep--;
+    document.getElementById('step-'+currentStep).classList.add('active');
+    updateProgress();
+  }
+
+  document.querySelectorAll('input[name="gaab"]').forEach(el => {
+    el.addEventListener('change', function() {
+      document.getElementById('intersex-field').classList.toggle('visible', this.value==='Intersex');
+      updateIdentityNote();
+    });
+  });
+
+  function toggleHRT() {
+    hrtOn=!hrtOn;
+    document.getElementById('hrt-toggle').classList.toggle('on',hrtOn);
+    document.getElementById('hrt-toggle-label').textContent=hrtOn?'Yes':'No';
+    document.getElementById('hrt-months-field').classList.toggle('visible',hrtOn);
+    updateHRTNote();
+  }
+
+  function getGAAB() {
+    const gaab=document.querySelector('input[name="gaab"]:checked');
+    if (!gaab) return null;
+    if (gaab.value==='Intersex') {
+      const henv=document.querySelector('input[name="horm-env"]:checked');
+      if (!henv) return 'Intersex-Mixed';
+      if (henv.value==='Androgenic') return 'Male';
+      if (henv.value==='Estrogenic') return 'Female';
+      if (henv.value==='HRT') return 'Intersex-HRT';
+      return 'Intersex-Mixed';
+    }
+    return gaab.value;
+  }
+
+  function updateIdentityNote() {
+    if (currentStep!==1) return;
+    const gaab=document.querySelector('input[name="gaab"]:checked');
+    const id=document.querySelector('input[name="identity"]:checked');
+    if (!gaab||!id) return;
+    const note=document.getElementById('identity-note');
+    const txt=document.getElementById('identity-note-text');
+    const msgs={
+      'Female-Male':'As a trans man (AFAB), testosterone typically increases your metabolic rate up to ~22% over 24 months. Your BMR gradually shifts toward male-range values as HRT continues.',
+      'Male-Female':'As a trans woman (AMAB), estrogen + T-blockers gradually reduce your metabolic rate by up to ~6% over 6 months.',
+      'Female-Non-binary':'For non-binary folks (AFAB), we apply a partial upward metabolic adjustment reflecting partial or low-dose HRT.',
+      'Male-Non-binary':'For non-binary folks (AMAB), we apply a partial downward metabolic adjustment.',
+      'Intersex-any':'For intersex individuals, we calculate your BMR from your hormonal environment rather than a binary birth sex assumption — giving you a more accurate baseline.',
+    };
+    let key = gaab.value==='Intersex' ? 'Intersex-any' : `${gaab.value}-${id.value}`;
+    const msg = msgs[key] || '';
+    if (msg) { txt.textContent=msg; note.style.display='block'; } else { note.style.display='none'; }
+  }
+
+  function updateHRTNote() {
+    if (currentStep!==2) return;
+    const note=document.getElementById('hrt-note');
+    if (!hrtOn) { note.style.display='none'; return; }
+    const gaab=getGAAB();
+    const id=document.querySelector('input[name="identity"]:checked');
+    const months=parseFloat(document.getElementById('hrt-duration').value)||0;
+    if (!gaab||!id) return;
+    const factor=calcHRTFactor(gaab,id.value,months);
+    const pct=Math.round((factor-1)*100);
+    document.getElementById('hrt-note-text').textContent=`Based on ${months} months on HRT, we're adjusting your TDEE by ${pct>0?'+':''}${pct}% to reflect your changing metabolism.`;
+    note.style.display='block';
+  }
+
+  document.querySelectorAll('input[name="identity"]').forEach(el=>el.addEventListener('change',updateIdentityNote));
+  document.getElementById('hrt-duration').addEventListener('input',updateHRTNote);
+
+  function calcHRTFactor(gaab,identity,months) {
+    if (!hrtOn) return 1;
+    // Trans women / AMAB moving toward female hormones
+    if ((gaab==='Male'||gaab==='Intersex-HRT')&&identity==='Female') return months<6?1-0.01*months:0.94;
+    // Trans men / AFAB moving toward male hormones
+    if ((gaab==='Female'||gaab==='Intersex-HRT')&&identity==='Male') {
+      if (months<=12) return 1+0.015*months;
+      if (months<=24) return 1.18+0.003*(months-12);
+      return 1.216;
+    }
+    if (identity==='Non-binary') {
+      if (gaab==='Male') return 0.97;
+      if (gaab==='Female') return 1.09;
+      return 1.03; // Intersex non-binary
+    }
+    if (gaab==='Intersex-Mixed') return 1.0;
+    return 1;
+  }
+
+  function calcBMR(weight_lbs,height_in,age,gaab,identity,months) {
+    const wk=weight_lbs*0.453592, hc=height_in*2.54;
+    if (gaab==='Intersex-Mixed') return 10*wk+6.25*hc-5*age-78; // avg of +5 and -161
+    if ((gaab==='Female'||gaab==='Intersex-HRT')&&identity==='Male'&&hrtOn) {
+      const progress=Math.min(months/24,1);
+      return 10*wk+6.25*hc-5*age+(-161+166*progress);
+    }
+    return 10*wk+6.25*hc-5*age+(gaab==='Male'?5:-161);
+  }
+
+  const MT = 'https://www.mysticaltranscendence.com';
+  function getSupplementRec(goal,gaab,identity,months) {
+    const isTransMan=(identity==='Male'&&gaab!=='Male');
+    if (goal==='Muscle Gain'||(isTransMan&&months>6&&hrtOn)) return {
+      icon:'💪',
+      title:'Surge Creatine + Protein — Top pick for your goal',
+      text:'Trans men on T see amplified muscle gains with creatine monohydrate. Surge by Mystical Transcendence is third-party tested, one ingredient, clinically backed. Stack it with MT protein and this is the highest-leverage supplement combo you can take right now.',
+      link:'Shop Surge Creatine →',
+      href: MT+'/products/morph-creatine',
+      secondary:'Shop Protein →',
+      secondaryHref: MT+'/collections/protein-1'
+    };
+    if (goal==='Fat Loss') return {
+      icon:'🔥',
+      title:'Protein + Recovery Stack — Fat loss essentials',
+      text:'High protein intake preserves muscle during a caloric deficit. Mystical Transcendence's protein formulas are designed for queer athletes — no bro-science, no weird energy. Stack with recovery & hydration to keep performance up during your deficit.',
+      link:'Shop Protein →',
+      href: MT+'/collections/protein-1',
+      secondary:'Shop Recovery →',
+      secondaryHref: MT+'/collections/recovery-hydration'
+    };
+    if (goal==='Recomp') return {
+      icon:'⚖️',
+      title:'Surge Creatine + Recovery — Recomp stack',
+      text:'Creatine supports muscle preservation during a slight deficit while recovery formulas support joint health as your body composition shifts. Both are staples for clients in a recomp phase.',
+      link:'Shop Surge Creatine →',
+      href: MT+'/products/morph-creatine',
+      secondary:'Shop Recovery →',
+      secondaryHref: MT+'/collections/recovery-hydration'
+    };
+    return {
+      icon:'🌱',
+      title:'Premium Sports Nutrition — Maintenance essentials',
+      text:'For maintenance, keep it simple: a quality protein source to hit your daily target and a solid recovery formula. Mystical Transcendence's sports nutrition line is built for queer athletes at every level.',
+      link:'Shop Sports Nutrition →',
+      href: MT+'/collections/premium-sports-nutrition',
+      secondary:'Shop All Products →',
+      secondaryHref: MT+'/collections/all'
+    };
+  }
+
+  function showResults() {
+    const email=document.getElementById('email').value;
+    if (!email||!email.includes('@')||!email.includes('.')) { showErr('email-err'); return; }
+    hideErr('email-err');
+
+    const weightRaw=parseFloat(document.getElementById('weight').value);
+    const heightRaw=parseFloat(document.getElementById('height').value);
+    const age=parseFloat(document.getElementById('age').value);
+    const weight_lbs=useMetric?weightRaw*2.20462:weightRaw;
+    const height_in=useMetric?heightRaw/2.54:heightRaw;
+
+    const gaabRaw=document.querySelector('input[name="gaab"]:checked').value;
+    const gaab=getGAAB();
+    const identity=document.querySelector('input[name="identity"]:checked').value;
+    const activityMult=parseFloat(document.getElementById('activity').value);
+    const goal=document.querySelector('input[name="goal"]:checked').value;
+    const hrtMonths=hrtOn?(parseFloat(document.getElementById('hrt-duration').value)||0):0;
+    const glp1=document.querySelector('input[name="glp1"]:checked')?.value||'';
+
+    const bmr=Math.round(calcBMR(weight_lbs,height_in,age,gaab,identity,hrtMonths));
+    const tdee=Math.round(bmr*activityMult);
+    const hrtFactor=calcHRTFactor(gaab,identity,hrtMonths);
+    const adjTDEE=Math.round(tdee*hrtFactor);
+    const goalAdj={'Fat Loss':-500,'Muscle Gain':300,'Recomp':-200,'Maintenance':0}[goal]||0;
+    const targetCals=Math.round(adjTDEE+goalAdj);
+
+    let proteinPerLb=goal==='Muscle Gain'?1.1:goal==='Fat Loss'?1.2:0.9;
+    if ((gaab==='Female'||gaab==='Intersex-HRT')&&identity==='Male'&&hrtOn&&hrtMonths>12) proteinPerLb=Math.min(proteinPerLb+0.1,1.3);
+    const protein=Math.round(weight_lbs*proteinPerLb);
+    const fats=Math.round((targetCals*0.25)/9);
+    const carbs=Math.max(Math.round((targetCals-(protein*4)-(fats*9))/4),0);
+    const fiber=Math.round(targetCals/1000*14);
+    const water_oz=Math.round(weight_lbs*0.67);
+    const trainCals=Math.round(targetCals*1.1);
+    const restCals=Math.round(targetCals*0.9);
+
+    let insightText='';
+    if (gaabRaw==='Intersex') {
+      const henv=document.querySelector('input[name="horm-env"]:checked')?.value||'Mixed';
+      insightText=`Your BMR is calculated from your hormonal environment (${henv.toLowerCase()}) rather than a binary birth sex assumption.${hrtOn?` With ${hrtMonths} months on HRT, a ${Math.round((hrtFactor-1)*100)}% metabolic adjustment has been applied.`:' No HRT adjustment applied.'}`;
+    } else if (!hrtOn) {
+      insightText='No HRT adjustment applied. Your macros are based on your current hormonal baseline.';
+    } else if (gaab==='Female'&&identity==='Male') {
+      const pct=Math.round((hrtFactor-1)*100);
+      insightText=`After ${hrtMonths} months on T, your metabolic rate has increased by ~${pct}%. Protein target is elevated to ${proteinPerLb.toFixed(1)}g/lb to support muscle synthesis. Reassess at your 6, 12, and 24 month marks.`;
+    } else if (gaab==='Male'&&identity==='Female') {
+      const pct=Math.round((1-hrtFactor)*100);
+      insightText=`After ${hrtMonths} months on HRT, your metabolic rate has decreased by ~${pct}%. Targets are adjusted accordingly. Don't under-eat — your body needs fuel to transition.`;
+    } else if (identity==='Non-binary') {
+      insightText=`A ${Math.round((hrtFactor-1)*100)}% metabolic adjustment has been applied based on your hormonal environment.`;
+    }
+
+    document.getElementById('r-calories').textContent=targetCals.toLocaleString();
+    document.getElementById('r-goal-label').textContent=`Goal: ${goal} · HRT Adjustment: ${Math.round((hrtFactor-1)*100)}%`;
+    document.getElementById('r-protein').textContent=protein;
+    document.getElementById('r-protein-cals').textContent=(protein*4)+' cal';
+    document.getElementById('r-carbs').textContent=carbs;
+    document.getElementById('r-carbs-cals').textContent=(carbs*4)+' cal';
+    document.getElementById('r-fats').textContent=fats;
+    document.getElementById('r-fats-cals').textContent=(fats*9)+' cal';
+    document.getElementById('hrt-insight-text').textContent=insightText;
+    document.getElementById('r-train-cals').textContent=trainCals.toLocaleString();
+    document.getElementById('r-rest-cals').textContent=restCals.toLocaleString();
+    document.getElementById('r-fiber').textContent=fiber+'g';
+    document.getElementById('r-water').textContent=useMetric?Math.round(water_oz*29.57)+' ml':water_oz+' oz';
+    document.getElementById('r-water-unit').textContent=useMetric?'ml/day minimum':'oz/day minimum';
+    document.getElementById('r-bmr').textContent=bmr.toLocaleString();
+    document.getElementById('r-tdee').textContent=adjTDEE.toLocaleString();
+
+    const supp=getSupplementRec(goal,gaab,identity,hrtMonths);
+    document.getElementById('supp-icon').textContent=supp.icon;
+    document.getElementById('supp-title').textContent=supp.title;
+    document.getElementById('supp-text').textContent=supp.text;
+    document.getElementById('supp-link').textContent=supp.link;
+    document.getElementById('supp-link').href=supp.href;
+    const sec=document.getElementById('supp-link-secondary');
+    sec.textContent=supp.secondary;
+    sec.href=supp.secondaryHref;
+    sec.style.display=supp.secondary?'inline':'none';
+
+    if (glp1==='Interested'||glp1==='No') {
+      document.getElementById('cta-headline').textContent='Have you heard about GLP-1 weight loss coaching?';
+      document.getElementById('cta-body').textContent='GLP-1 medications combined with trans-affirming coaching can be a powerful tool for sustainable fat loss. Book a free call to see if it\'s right for you.';
+    }
+
+    const meals=[{name:'Breakfast',p:0.25,c:0.25,f:0.25,cal:0.25},{name:'Lunch',p:0.30,c:0.30,f:0.30,cal:0.30},{name:'Dinner',p:0.35,c:0.35,f:0.30,cal:0.30},{name:'Snack',p:0.10,c:0.10,f:0.15,cal:0.15}];
+    document.getElementById('meal-table-body').innerHTML=meals.map(m=>`<tr><td>${m.name}</td><td>${Math.round(protein*m.p)}g</td><td>${Math.round(carbs*m.c)}g</td><td>${Math.round(fats*m.f)}g</td><td>${Math.round(targetCals*m.cal)}</td></tr>`).join('');
+
+    document.getElementById('step-5').style.display='none';
+    document.getElementById('results-panel').classList.add('active');
+    document.querySelector('.progress-header').style.display='none';
+    document.getElementById('calculator').scrollIntoView({behavior:'smooth',block:'start'});
+  }
+
+  // GHL-safe event delegation — handles all button clicks
+  document.addEventListener('click', function(e) {
+    var el = e.target.closest('[data-ghl-action]');
+    if (!el) return;
+    var action = el.getAttribute('data-ghl-action');
+    var param = el.getAttribute('data-ghl-param');
+    if (action === 'nextStep') nextStep();
+    else if (action === 'prevStep') prevStep();
+    else if (action === 'toggleHRT') { e.stopPropagation(); toggleHRT(); }
+    else if (action === 'showResults') showResults();
+    else if (action === 'scrollToCalc') scrollToCalc(e);
+    else if (action === 'setUnit') setUnit(param);
+    else if (action === 'openSkool') window.open('https://www.skool.com/transformfitnesscommunity','_blank');
+    else if (action === 'openEssentials') window.open('https://www.transformfitness.net/essentials','_blank');
+  });
+
+  window.nextStep=nextStep;window.prevStep=prevStep;window.toggleHRT=toggleHRT;window.setUnit=setUnit;window.showResults=showResults;window.scrollToCalc=scrollToCalc;
+
+</script>
