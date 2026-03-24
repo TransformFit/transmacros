@@ -403,7 +403,7 @@ Uses event delegation — no onclick= attributes
     <!-- STEP 4: Quick Segmentation -->
     <div class="step" id="step-4">
       <h2 class="step-title">One Quick Thing</h2>
-      <p class="step-desc">Three quick questions so we can send you content that's actually relevant to where you are in your journey.</p>
+      <p class="step-desc">Three quick questions so we can send you content that\'s actually relevant to where you are in your journey.</p>
       <div class="field-group">
         <label>What's your biggest challenge right now?</label>
         <div class="pill-group">
@@ -560,8 +560,8 @@ Uses event delegation — no onclick= attributes
   </div>
   <div class="proof-grid">
     <div class="proof-card"><div class="proof-stars">★★★★★</div><p class="proof-text">"Finally a coach who actually gets it. Trey accounted for my T levels, my training age, everything. Down 22 lbs in 4 months."</p><div class="proof-author">Marcus D. · <span>Trans man, 8 months on T</span></div></div>
-    <div class="proof-card"><div class="proof-stars">★★★★★</div><p class="proof-text">"I've tried every calculator out there and they all give me female defaults. This one actually sees me. The HRT adjustment is a game changer."</p><div class="proof-author">Jordan K. · <span>Non-binary, 2 years HRT</span></div></div>
-    <div class="proof-card"><div class="proof-stars">★★★★★</div><p class="proof-text">"Trey understands the intersection of gender and fitness in a way no cis coach does. Best investment I've made in my transition."</p><div class="proof-author">Alex R. · <span>Trans man, pre-T</span></div></div>
+    <div class="proof-card"><div class="proof-stars">★★★★★</div><p class="proof-text">"I\'ve tried every calculator out there and they all give me female defaults. This one actually sees me. The HRT adjustment is a game changer."</p><div class="proof-author">Jordan K. · <span>Non-binary, 2 years HRT</span></div></div>
+    <div class="proof-card"><div class="proof-stars">★★★★★</div><p class="proof-text">"Trey understands the intersection of gender and fitness in a way no cis coach does. Best investment I\'ve made in my transition."</p><div class="proof-author">Alex R. · <span>Trans man, pre-T</span></div></div>
   </div>
 </section>
 
@@ -592,7 +592,11 @@ Uses event delegation — no onclick= attributes
   <p style="margin-top:8px">Macro calculations are educational estimates. Consult a registered dietitian for medical nutrition therapy.</p>
 </footer>
 
+
+</div>
+
 <script>
+
   let currentStep = 0;
   const totalSteps = 6;
   let hrtOn = false;
@@ -772,7 +776,7 @@ Uses event delegation — no onclick= attributes
     if (goal==='Fat Loss') return {
       icon:'🔥',
       title:'Protein + Recovery Stack — Fat loss essentials',
-      text:'High protein intake preserves muscle during a caloric deficit. Mystical Transcendence's protein formulas are designed for queer athletes — no bro-science, no weird energy. Stack with recovery & hydration to keep performance up during your deficit.',
+      text:'High protein intake preserves muscle during a caloric deficit. Mystical Transcendence\'s protein formulas are designed for queer athletes — no bro-science, no weird energy. Stack with recovery & hydration to keep performance up during your deficit.',
       link:'Shop Protein →',
       href: MT+'/collections/protein-1',
       secondary:'Shop Recovery →',
@@ -790,7 +794,7 @@ Uses event delegation — no onclick= attributes
     return {
       icon:'🌱',
       title:'Premium Sports Nutrition — Maintenance essentials',
-      text:'For maintenance, keep it simple: a quality protein source to hit your daily target and a solid recovery formula. Mystical Transcendence's sports nutrition line is built for queer athletes at every level.',
+      text:'For maintenance, keep it simple: a quality protein source to hit your daily target and a solid recovery formula. Mystical Transcendence\'s sports nutrition line is built for queer athletes at every level.',
       link:'Shop Sports Nutrition →',
       href: MT+'/collections/premium-sports-nutrition',
       secondary:'Shop All Products →',
@@ -891,18 +895,10 @@ Uses event delegation — no onclick= attributes
     document.querySelector('.progress-header').style.display='none';
     document.getElementById('calculator').scrollIntoView({behavior:'smooth',block:'start'});
   }
-</script>
-</div>
 
-<script>
-  const GHL_WEBHOOK_URL = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4nx5JQk1dIv/webhook-trigger/4225bc15-d69d-4b04-9fd6-b95490bd3ba5';
+const GHL_WEBHOOK_URL = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4nx5JQk1dIv/webhook-trigger/4225bc15-d69d-4b04-9fd6-b95490bd3ba5';
   const GHL_NEXT_STEP_URL = '';
 
-let currentStep = 0;
-  const totalSteps = 6;
-  let hrtOn = false;
-  let useMetric = false;
-  const stepNames = ['Body Stats','Gender & Identity','Hormone Therapy','Activity & Goals','Quick Questions','Your Results'];
 
   window.scrollToCalc = function(e) { e.preventDefault(); document.getElementById('calculator').scrollIntoView({behavior:'smooth',block:'start'}); }
 
@@ -1062,7 +1058,6 @@ let currentStep = 0;
     return 10*wk+6.25*hc-5*age+(gaab==='Male'?5:-161);
   }
 
-  const MT = 'https://www.mysticaltranscendence.com';
   window.getSupplementRec = function(goal,gaab,identity,months) {
     const isTransMan=(identity==='Male'&&gaab!=='Male');
     if (goal==='Muscle Gain'||(isTransMan&&months>6&&hrtOn)) return {
@@ -1077,7 +1072,7 @@ let currentStep = 0;
     if (goal==='Fat Loss') return {
       icon:'🔥',
       title:'Protein + Recovery Stack — Fat loss essentials',
-      text:'High protein intake preserves muscle during a caloric deficit. Mystical Transcendence's protein formulas are designed for queer athletes — no bro-science, no weird energy. Stack with recovery & hydration to keep performance up during your deficit.',
+      text:'High protein intake preserves muscle during a caloric deficit. Mystical Transcendence\'s protein formulas are designed for queer athletes — no bro-science, no weird energy. Stack with recovery & hydration to keep performance up during your deficit.',
       link:'Shop Protein →',
       href: MT+'/collections/protein-1',
       secondary:'Shop Recovery →',
@@ -1095,7 +1090,7 @@ let currentStep = 0;
     return {
       icon:'🌱',
       title:'Premium Sports Nutrition — Maintenance essentials',
-      text:'For maintenance, keep it simple: a quality protein source to hit your daily target and a solid recovery formula. Mystical Transcendence's sports nutrition line is built for queer athletes at every level.',
+      text:'For maintenance, keep it simple: a quality protein source to hit your daily target and a solid recovery formula. Mystical Transcendence\'s sports nutrition line is built for queer athletes at every level.',
       link:'Shop Sports Nutrition →',
       href: MT+'/collections/premium-sports-nutrition',
       secondary:'Shop All Products →',
@@ -1212,6 +1207,4 @@ let currentStep = 0;
     else if (action === 'openSkool') window.open('https://www.skool.com/transformfitnesscommunity','_blank');
     else if (action === 'openEssentials') window.open('https://www.transformfitness.net/essentials','_blank');
   });
-
-  
 </script>
