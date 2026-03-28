@@ -1152,6 +1152,16 @@ const GHL_WEBHOOK_URL = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4nx
     document.getElementById('adjust-label').className = 'adjust-value';
     console.log('slider baseline set');
 
+    // Build GHL tags
+    var tags = ['macro-calculator'];
+    if (glp1==='Interested'||glp1==='No') tags.push('glp1-interested');
+    if (hrtOn) tags.push('on-hrt');
+    if (identity==='Male') tags.push('trans-man');
+    else if (identity==='Female') tags.push('trans-woman');
+    else if (identity==='Non-binary') tags.push('non-binary');
+    var challenge=(document.querySelector('input[name="challenge"]:checked')||{}).value||'';
+    if (challenge) tags.push(challenge.toLowerCase().replace(/ /g,'-'));
+
     // Fire GHL webhook
     fetch(GHL_WEBHOOK_URL, {
       method: 'POST',
@@ -1166,13 +1176,14 @@ const GHL_WEBHOOK_URL = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4nx
         hrt_duration: hrtMonths,
         gender_identity: identity,
         birth_sex: gaabRaw,
-        biggest_challenge: (document.querySelector('input[name="challenge"]:checked')||{}).value||'',
+        biggest_challenge: challenge,
         glp1_interest: glp1,
         skool_interest: (document.querySelector('input[name="community"]:checked')||{}).value||'',
         calories: targetCals,
         protein: protein,
         carbs: carbs,
-        fats: fats
+        fats: fats,
+        tags: tags
       })
     }).catch(function() {});
     console.log('webhook fired');
