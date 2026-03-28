@@ -5,6 +5,16 @@ GHL-Ready | transformfitness.net/calculator
 Uses event delegation — no onclick= attributes
 =================================================================
 -->
+<meta name="description" content="The first macro calculator designed for trans, non-binary, and intersex bodies — accounting for HRT, body composition changes, and your actual goals. Free, always.">
+<meta property="og:title" content="Trans Macro Calculator — Built for Trans, Non-Binary & Intersex Bodies">
+<meta property="og:description" content="The first macro calculator that accounts for HRT, hormonal environment, and your actual goals. Free, always.">
+<meta property="og:url" content="https://transmacros.com">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://transmacros.com/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Trans Macro Calculator — Built for Trans, Non-Binary & Intersex Bodies">
+<meta name="twitter:description" content="The first macro calculator that accounts for HRT, hormonal environment, and your actual goals. Free, always.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='20' fill='%235BCEFA'/><rect y='20' width='100' height='20' fill='%23F5A9B8'/><rect y='40' width='100' height='20' fill='%23FFFFFF'/><rect y='60' width='100' height='20' fill='%23F5A9B8'/><rect y='80' width='100' height='20' fill='%235BCEFA'/></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -148,6 +158,20 @@ Uses event delegation — no onclick= attributes
   .share-copy-btn:hover{border-color:var(--trans-blue);color:var(--trans-blue)}
   .share-copy-btn.copied{border-color:var(--trans-blue);color:var(--trans-blue);background:rgba(91,206,250,0.08)}
   .share-screenshot{text-align:center;font-size:0.75rem;color:var(--muted);margin-top:12px}
+  .feedback-widget{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:24px;text-align:center;margin-top:28px;display:none}
+  .feedback-widget.visible{display:block}
+  .feedback-widget h4{font-family:var(--font-display);font-size:1rem;color:var(--trans-white);margin-bottom:12px}
+  .feedback-stars{display:flex;justify-content:center;gap:8px;margin-bottom:16px}
+  .feedback-star{font-size:1.6rem;cursor:pointer;color:var(--bg3);transition:color 0.15s}
+  .feedback-star.active{color:var(--trans-pink)}
+  .feedback-star:hover,.feedback-star:hover~.feedback-star{color:var(--trans-pink)}
+  .feedback-form{display:none}
+  .feedback-form.visible{display:block}
+  .feedback-textarea{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px;font-family:var(--font-body);font-size:0.85rem;color:var(--text);resize:vertical;min-height:70px;outline:none;margin-bottom:12px}
+  .feedback-textarea:focus{border-color:var(--trans-blue)}
+  .feedback-submit{background:var(--trans-gradient);color:#0d0f14;font-family:var(--font-body);font-size:0.85rem;font-weight:600;padding:10px 24px;border-radius:100px;border:none;cursor:pointer;transition:transform 0.2s}
+  .feedback-submit:hover{transform:translateY(-1px)}
+  .feedback-thanks{display:none;font-size:0.88rem;color:var(--trans-blue);margin-top:8px}
   .share-social{display:flex;gap:10px;margin-top:10px}
   .share-social-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;font-family:var(--font-body);font-size:0.78rem;font-weight:600;padding:10px 12px;border-radius:100px;border:none;cursor:pointer;transition:opacity 0.2s;text-decoration:none;color:#fff}
   .share-social-btn:hover{opacity:0.85}
@@ -503,7 +527,7 @@ Uses event delegation — no onclick= attributes
 
     <!-- STEP 4: Quick Segmentation -->
     <div class="step" id="step-4">
-      <h2 class="step-title">One Quick Thing</h2>
+      <h2 class="step-title">Your Journey</h2>
       <p class="step-desc">Three quick questions so we can send you content that\'s actually relevant to where you are in your journey.</p>
       <div class="field-group">
         <label>What's your biggest challenge right now?</label>
@@ -553,7 +577,7 @@ Uses event delegation — no onclick= attributes
 
           <label style="margin-top:4px">Phone Number <span class="optional-tag">(optional)</span></label>
           <input type="tel" id="phone" placeholder="e.g. (317) 555-0100">
-          <p class="privacy-note" style="text-align:left;margin-top:4px;margin-bottom:0">📱 If provided, we'll text you an SMS-friendly macro summary + optional weekly check-in reminders.</p>
+          <p class="privacy-note" style="text-align:left;margin-top:4px;margin-bottom:0">📱 We'll send you a text with your macro summary.</p>
 
           <button type="button" class="btn-next" id="unlock-btn" data-calc-action="showResults" onclick="showResults()" style="margin-top:20px">Unlock My Results →</button>
           <p class="privacy-note" style="margin-top:12px">🔒 Your info is private. No spam, ever. Unsubscribe anytime.</p>
@@ -684,22 +708,16 @@ Uses event delegation — no onclick= attributes
       <a href="https://www.skool.com/transformfitnesscommunity" target="_blank" rel="noopener" class="skool-join">Join the Free Community</a>
     </div>
 
-    <div class="cta-grid">
-      <div class="cta-mini" data-calc-action="openSkool">
-        <div class="cta-icon">🏳️‍⚧️</div>
-        <h4>Join the Free Community</h4>
-        <p>Trans people supporting each other — no explaining your pronouns required</p>
-      </div>
-      <div class="cta-mini" data-calc-action="openEssentials">
-        <div class="cta-icon">📱</div>
-        <h4>Track with Essentials</h4>
-        <p>Workouts, meal plans & metrics built for your transition journey</p>
-      </div>
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:24px;text-align:center;margin-bottom:24px">
+      <div style="font-size:1.5rem;margin-bottom:10px">📱</div>
+      <h4 style="font-family:var(--font-display);font-size:1rem;color:var(--trans-white);margin-bottom:6px">Track with Essentials</h4>
+      <p style="font-size:0.82rem;color:var(--muted);line-height:1.5;margin-bottom:16px">Workouts, meal plans & metrics built for your transition journey</p>
+      <a href="https://essentials.transformfitness.net" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px;background:var(--trans-gradient);color:#0d0f14;font-family:var(--font-body);font-size:0.85rem;font-weight:600;padding:11px 24px;border-radius:100px;text-decoration:none;transition:transform 0.2s;box-shadow:0 0 20px rgba(91,206,250,0.15)">Try Essentials Free</a>
     </div>
 
     <div class="results-cta">
       <h3 id="cta-headline">What happens next?</h3>
-      <p id="cta-body">You're on the list. Trey will be in touch with a personalized guide based on your results — plus tips for your specific HRT stage and goal. In the meantime, explore the community and the tools below.</p>
+      <p id="cta-body">Your macro guide is in your inbox. If you don't see it, check your spam or promotions folder. Over the next few weeks you'll get HRT-specific nutrition tips, supplement guidance for your goal, and a reminder to recalculate as your body changes.</p>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:4px">
         <a href="https://www.instagram.com/treynertrey" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;gap:8px;background:var(--bg3);border:1px solid var(--border);border-radius:100px;padding:13px 20px;text-decoration:none;color:var(--text);font-size:0.85rem;font-weight:600;transition:border-color 0.2s" onmouseover="this.style.borderColor='var(--trans-blue)'" onmouseout="this.style.borderColor='var(--border)'">
           <span>📸</span> Follow @treynertrey
@@ -709,20 +727,33 @@ Uses event delegation — no onclick= attributes
         </a>
       </div>
     </div>
+
+    <div class="feedback-widget" id="feedback-widget">
+      <h4>Was this helpful?</h4>
+      <div class="feedback-stars" id="feedback-stars">
+        <span class="feedback-star" data-rating="1">&#9733;</span>
+        <span class="feedback-star" data-rating="2">&#9733;</span>
+        <span class="feedback-star" data-rating="3">&#9733;</span>
+        <span class="feedback-star" data-rating="4">&#9733;</span>
+        <span class="feedback-star" data-rating="5">&#9733;</span>
+      </div>
+      <div class="feedback-form" id="feedback-form">
+        <textarea class="feedback-textarea" id="feedback-text" placeholder="Tell us more (optional)"></textarea>
+        <button type="button" class="feedback-submit" id="feedback-submit">Submit Feedback</button>
+      </div>
+      <p class="feedback-thanks" id="feedback-thanks">Thanks for your feedback!</p>
+    </div>
   </div>
 
 </div><!-- /calc-card -->
 </div><!-- /calc-wrapper -->
 
 <section class="social-proof">
-  <div style="text-align:center;max-width:600px;margin:0 auto 48px">
-    <p style="font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--trans-pink);margin-bottom:16px">What clients are saying</p>
-    <h2 style="font-family:var(--font-display);font-size:2rem;color:var(--trans-white)">Real results, real community.</h2>
-  </div>
-  <div class="proof-grid">
-    <div class="proof-card"><div class="proof-stars">★★★★★</div><p class="proof-text">"Finally a coach who actually gets it. Trey accounted for my T levels, my training age, everything. Down 22 lbs in 4 months."</p><div class="proof-author">Marcus D. · <span>Trans man, 8 months on T</span></div></div>
-    <div class="proof-card"><div class="proof-stars">★★★★★</div><p class="proof-text">"I've tried every calculator out there and they all give me female defaults. This one actually sees me. The HRT adjustment is a game changer."</p><div class="proof-author">Jordan K. · <span>Non-binary, 2 years HRT</span></div></div>
-    <div class="proof-card"><div class="proof-stars">★★★★★</div><p class="proof-text">"Trey understands the intersection of gender and fitness in a way no cis coach does. Best investment I\'ve made in my transition."</p><div class="proof-author">Alex R. · <span>Trans man, pre-T</span></div></div>
+  <div style="text-align:center;max-width:500px;margin:0 auto;padding:20px 0">
+    <p style="font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--trans-pink);margin-bottom:16px">Community</p>
+    <h2 style="font-family:var(--font-display);font-size:1.8rem;color:var(--trans-white);margin-bottom:12px">Real results coming soon.</h2>
+    <p style="font-size:0.9rem;color:var(--muted);line-height:1.7;margin-bottom:24px">Be one of the first to share yours.</p>
+    <a href="#testimonials" style="display:inline-flex;align-items:center;gap:8px;background:rgba(91,206,250,0.1);border:1px solid rgba(91,206,250,0.25);color:var(--trans-blue);font-family:var(--font-body);font-size:0.85rem;font-weight:600;padding:11px 24px;border-radius:100px;text-decoration:none;transition:all 0.2s">Share Your Results</a>
   </div>
 </section>
 
@@ -740,16 +771,16 @@ Uses event delegation — no onclick= attributes
     <div class="stripe-bar" style="margin:0;width:80px"></div>
   </div>
   <p style="margin-bottom:10px">
-    <a href="https://www.instagram.com/treynertrey" target="_blank" rel="noopener">@treynertrey</a> ·
-    <a href="https://www.skool.com/transformfitnesscommunity" target="_blank" rel="noopener">Join the Community</a> ·
-    <a href="https://www.transformfitness.net/essentials" target="_blank" rel="noopener">Essentials App</a>
+    <a href="https://www.instagram.com/treynertrey" target="_blank" rel="noopener">@treynertrey</a> <span style="color:var(--border);margin:0 6px">&bull;</span>
+    <a href="https://www.skool.com/transformfitnesscommunity" target="_blank" rel="noopener">Join the Community</a> <span style="color:var(--border);margin:0 6px">&bull;</span>
+    <a href="https://essentials.transformfitness.net" target="_blank" rel="noopener">Essentials App</a>
   </p>
   <p style="margin-bottom:10px">
-    <a href="https://www.instagram.com/mysticaltranscendence" target="_blank" rel="noopener">@mysticaltranscendence</a> ·
-    <a href="https://www.tiktok.com/@mysticaltranscendence" target="_blank" rel="noopener">TikTok</a> ·
+    <a href="https://www.instagram.com/mysticaltranscendence" target="_blank" rel="noopener">@mysticaltranscendence</a> <span style="color:var(--border);margin:0 6px">&bull;</span>
+    <a href="https://www.tiktok.com/@mysticaltranscendence" target="_blank" rel="noopener">TikTok</a> <span style="color:var(--border);margin:0 6px">&bull;</span>
     <a href="https://www.mysticaltranscendence.com" target="_blank" rel="noopener">Shop Supplements</a>
   </p>
-  <p>© 2025 Transform Fitness Coaching by Trey Sheidler</p>
+  <p>© 2026 Transform Fitness Coaching by Trey Sheidler</p>
   <p style="margin-top:8px">Macro calculations are personalized estimates based on your inputs and are intended for educational purposes only. Individual results vary. Your targets should be adjusted over time as your body, hormones, and goals change. Consult a registered dietitian for clinical nutrition therapy.</p>
 </footer>
 
@@ -931,7 +962,7 @@ const GHL_WEBHOOK_URL = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4nx
       title:'Surge Creatine + Protein — Top pick for your goal',
       text:'Trans men on T see amplified muscle gains with creatine monohydrate. Surge by Mystical Transcendence is third-party tested, one ingredient, clinically backed. Stack it with MT protein and this is the highest-leverage supplement combo you can take right now.',
       link:'Shop Surge Creatine →',
-      href: MT+'/products/morph-creatine',
+      href: MT+'/products/surge-creatine-monohydrate',
       secondary:'Shop Protein →',
       secondaryHref: MT+'/collections/protein-muscle-support'
     };
@@ -949,7 +980,7 @@ const GHL_WEBHOOK_URL = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4nx
       title:'Surge Creatine + Recovery — Recomp stack',
       text:'Creatine supports muscle preservation during a slight deficit while recovery formulas support joint health as your body composition shifts. Both are staples for clients in a recomp phase.',
       link:'Shop Surge Creatine →',
-      href: MT+'/products/morph-creatine',
+      href: MT+'/products/surge-creatine-monohydrate',
       secondary:'Shop Recovery →',
       secondaryHref: MT+'/collections/recovery-hydration'
     };
@@ -1168,6 +1199,8 @@ const GHL_WEBHOOK_URL = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4nx
     document.getElementById('results-panel').classList.add('active');
     var inboxNotice=document.getElementById('inbox-notice');
     if (inboxNotice) inboxNotice.style.display='block';
+    var fbWidget=document.getElementById('feedback-widget');
+    if (fbWidget) fbWidget.classList.add('visible');
     document.querySelector('.progress-header').style.display='none';
     document.getElementById('calculator').scrollIntoView({behavior:'smooth',block:'start'});
     console.log('results panel shown');
@@ -1183,7 +1216,7 @@ const GHL_WEBHOOK_URL = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4nx
     // Build GHL tags
     var tags = ['macro-calculator'];
     if (goal) tags.push(goal.toLowerCase().replace(/ /g,'-'));
-    if (glp1==='Interested'||glp1==='No') tags.push('glp1-interested');
+    if (glp1==='Interested'||glp1==='No'||glp1==='Yes') tags.push('glp1-interested');
     if (hrtOn) tags.push('on-hrt');
     if (identity==='Male') tags.push('trans-man');
     else if (identity==='Female') tags.push('trans-woman');
@@ -1490,6 +1523,32 @@ const GHL_WEBHOOK_URL = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4nx
     }
   });
 
+  // Feedback widget
+  var _feedbackRating=0;
+  if (document.getElementById('feedback-stars')) document.getElementById('feedback-stars').addEventListener('click', function(e) {
+    var star=e.target.closest('.feedback-star');
+    if (!star) return;
+    _feedbackRating=parseInt(star.getAttribute('data-rating'),10);
+    var stars=document.querySelectorAll('.feedback-star');
+    for (var i=0;i<stars.length;i++) {
+      stars[i].classList.toggle('active',i<_feedbackRating);
+    }
+    var form=document.getElementById('feedback-form');
+    if (form) form.classList.add('visible');
+  });
+
+  if (document.getElementById('feedback-submit')) document.getElementById('feedback-submit').addEventListener('click', function() {
+    window.open('https://link.apisystem.tech/widget/survey/CIBoctkwXSuGPvvWIlOg','_blank');
+    var form=document.getElementById('feedback-form');
+    var stars=document.getElementById('feedback-stars');
+    var heading=document.querySelector('.feedback-widget h4');
+    if (form) form.style.display='none';
+    if (stars) stars.style.display='none';
+    if (heading) heading.style.display='none';
+    var thanks=document.getElementById('feedback-thanks');
+    if (thanks) thanks.style.display='block';
+  });
+
   // GHL-safe event delegation — handles all button clicks
   document.addEventListener('click', function(e) {
     var el = e.target.closest('[data-calc-action]');
@@ -1503,7 +1562,7 @@ const GHL_WEBHOOK_URL = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4nx
     else if (action === 'scrollToCalc') scrollToCalc(e);
     else if (action === 'setUnit') setUnit(param);
     else if (action === 'openSkool') window.open('https://www.skool.com/transformfitnesscommunity','_blank');
-    else if (action === 'openEssentials') window.open('https://www.transformfitness.net/essentials','_blank');
+    else if (action === 'openEssentials') window.open('https://essentials.transformfitness.net','_blank');
   });
 
   // Guaranteed fallback binding for Unlock My Results button
