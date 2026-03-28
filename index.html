@@ -1214,15 +1214,7 @@ const GHL_WEBHOOK_URL = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4nx
     console.log('slider baseline set');
 
     // Build GHL tags
-    var tags = ['macro-calculator'];
-    if (goal) tags.push(goal.toLowerCase().replace(/ /g,'-'));
-    if (glp1==='Interested'||glp1==='No'||glp1==='Yes') tags.push('glp1-interested');
-    if (hrtOn) tags.push('on-hrt');
-    if (identity==='Male') tags.push('trans-man');
-    else if (identity==='Female') tags.push('trans-woman');
-    else if (identity==='Non-binary') tags.push('non-binary');
     var challenge=(document.querySelector('input[name="challenge"]:checked')||{}).value||'';
-    if (challenge) tags.push(challenge.toLowerCase().replace(/[^a-z0-9 ]/g,'').replace(/ /g,'-'));
 
     // Fire GHL webhook
     fetch(GHL_WEBHOOK_URL, {
@@ -1245,18 +1237,19 @@ const GHL_WEBHOOK_URL = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4nx
         protein: protein,
         carbs: carbs,
         fats: fats,
-        tags: tags
+        tag_macro_calculator: true,
+        tag_trans_man: identity==='Male',
+        tag_trans_woman: identity==='Female',
+        tag_non_binary: identity==='Non-binary',
+        tag_on_hrt: hrtOn,
+        tag_glp1_interested: glp1==='Interested'||glp1==='No'||glp1==='Yes',
+        tag_fat_loss: goal==='Fat Loss',
+        tag_muscle_gain: goal==='Muscle Gain',
+        tag_recomp: goal==='Recomp',
+        tag_maintenance: goal==='Maintenance',
+        tag_challenge: challenge ? challenge.toLowerCase().replace(/[^a-z0-9 ]/g,'').replace(/ /g,'-') : ''
       })
     }).catch(function() {});
-    // Delayed second call to apply tags after contact is created
-    var _email = email, _tags = tags;
-    setTimeout(function() {
-      fetch(GHL_WEBHOOK_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: _email, tags: _tags })
-      }).catch(function() {});
-    }, 2000);
     console.log('webhook fired');
 
     } catch(err) {
