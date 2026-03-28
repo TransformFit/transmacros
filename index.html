@@ -38,8 +38,6 @@ Uses event delegation — no onclick= attributes
   .trust-row { display:flex; align-items:center; justify-content:center; gap:32px; margin-top:56px; flex-wrap:wrap; }
   .trust-item { display:flex; align-items:center; gap:8px; font-size:0.85rem; color:var(--muted); }
   .trust-item .dot { width:6px; height:6px; border-radius:50%; background:var(--trans-gradient); }
-  .scroll-hint { position:absolute; bottom:32px; left:50%; transform:translateX(-50%); display:flex; flex-direction:column; align-items:center; gap:8px; color:var(--muted); font-size:0.75rem; letter-spacing:0.1em; animation:bounce 2s ease-in-out infinite; }
-  @keyframes bounce{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(6px)}}
 
   .calc-wrapper { background:var(--bg); position:relative; z-index:1; padding:0 24px 120px; }
   .calc-card { max-width:720px; margin:0 auto; background:var(--card); border:1px solid var(--border); border-radius:24px; overflow:hidden; box-shadow:0 40px 120px rgba(0,0,0,0.5); }
@@ -243,7 +241,47 @@ Uses event delegation — no onclick= attributes
   .mt-footer-tagline { font-size:0.75rem; color:var(--muted); }
 
   @media(max-width:600px){
-    .step{padding:24px 20px} .progress-header{padding:20px 24px 18px} .field-row{grid-template-columns:1fr} .macro-grid{grid-template-columns:1fr} .extras-grid,.cycling-grid,.cta-grid{grid-template-columns:1fr} .email-gate{padding:32px 20px 24px} .results-panel{padding:24px 20px}
+    .hero{padding:40px 20px 36px;min-height:auto;justify-content:flex-start}
+    .hero h1{font-size:clamp(2rem,8vw,2.8rem)}
+    .hero-sub{font-size:0.95rem;margin-bottom:36px}
+    .trust-row{gap:16px;margin-top:36px}
+    .trust-item{font-size:0.78rem}
+    .calc-wrapper{padding:0 12px 80px}
+    .calc-card{border-radius:18px}
+    .progress-header{padding:20px 20px 18px}
+    .step{padding:24px 18px 24px}
+    .step-title{font-size:1.35rem}
+    .step-desc{font-size:0.85rem;margin-bottom:20px}
+    .field-row{grid-template-columns:1fr}
+    .pill-group{gap:8px}
+    .pill-group label{padding:9px 14px;font-size:0.8rem}
+    .step-nav{padding-top:20px}
+    .btn-back{padding:10px 18px;font-size:0.82rem}
+    .btn-next{padding:12px 24px;font-size:0.88rem}
+    .email-gate{padding:28px 18px 24px}
+    .email-gate h2{font-size:1.5rem}
+    .results-panel{padding:20px 16px}
+    .results-hero{padding:20px 12px 28px;margin-bottom:24px}
+    .results-hero h2{font-size:1.4rem}
+    .calorie-big{font-size:3.2rem}
+    .adjust-slider-wrap{padding:16px 18px;margin-bottom:24px}
+    .macro-grid{grid-template-columns:1fr;gap:12px;margin-bottom:20px}
+    .macro-grams{font-size:1.8rem}
+    .share-card{padding:20px 16px}
+    .share-card-nums{grid-template-columns:repeat(2,1fr);gap:14px}
+    .share-card-num .num{font-size:1.2rem}
+    .hrt-callout{padding:18px 16px}
+    .hrt-callout h4{font-size:0.95rem}
+    .hrt-callout-pct{font-size:1.4rem}
+    .cycling-grid,.extras-grid,.cta-grid{grid-template-columns:1fr}
+    .meal-table{font-size:0.78rem}
+    .meal-table th{padding:0 8px 10px;font-size:0.65rem}
+    .meal-table td{padding:10px 8px;font-size:0.8rem}
+    .supp-box{flex-direction:column;gap:12px;padding:16px}
+    .results-cta{padding:20px 16px}
+    .results-cta h3{font-size:1.2rem}
+    .results-cta div[style*="grid-template-columns"]{display:flex !important;flex-direction:column;gap:10px}
+    .powered-bar{padding:8px 16px;flex-wrap:wrap;gap:6px}
   }
 
 </style>
@@ -275,10 +313,6 @@ Uses event delegation — no onclick= attributes
         </div>
       </a>
     </div>
-  </div>
-  <div class="scroll-hint">
-    <span>scroll</span>
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
   </div>
 </section>
 
