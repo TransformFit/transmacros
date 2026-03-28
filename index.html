@@ -148,6 +148,16 @@ Uses event delegation — no onclick= attributes
   .share-copy-btn:hover{border-color:var(--trans-blue);color:var(--trans-blue)}
   .share-copy-btn.copied{border-color:var(--trans-blue);color:var(--trans-blue);background:rgba(91,206,250,0.08)}
   .share-screenshot{text-align:center;font-size:0.75rem;color:var(--muted);margin-top:12px}
+  .share-social{display:flex;gap:10px;margin-top:10px}
+  .share-social-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;font-family:var(--font-body);font-size:0.78rem;font-weight:600;padding:10px 12px;border-radius:100px;border:none;cursor:pointer;transition:opacity 0.2s;text-decoration:none;color:#fff}
+  .share-social-btn:hover{opacity:0.85}
+  .share-social-btn.fb{background:#1877F2}
+  .share-social-btn.tw{background:#14171A;border:1px solid rgba(255,255,255,0.15)}
+  .share-social-btn.ig{background:linear-gradient(135deg,#F58529,#DD2A7B,#8134AF)}
+  .ig-tooltip{display:none;position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:0.72rem;color:var(--muted);white-space:nowrap;z-index:10;pointer-events:none}
+  .ig-tooltip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:var(--card)}
+  .ig-wrap{position:relative;flex:1}
+  .ig-wrap:hover .ig-tooltip.desktop-only{display:block}
 
   .macro-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:28px}
   .macro-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:20px 16px;text-align:center;position:relative;overflow:hidden}
@@ -583,6 +593,10 @@ Uses event delegation — no onclick= attributes
       <div class="macro-card fats"><div class="macro-name">Fats</div><div class="macro-grams" id="r-fats">—</div><div class="macro-unit">grams / day</div><div class="macro-cals" id="r-fats-cals">—</div><div class="macro-explain" id="r-fats-explain"></div></div>
     </div>
 
+    <div style="border:1px solid var(--border);border-radius:12px;padding:16px 20px;margin-bottom:24px">
+      <p style="font-size:0.8rem;color:var(--muted);line-height:1.65;margin:0">These numbers are a starting point, not a permanent prescription. Your metabolism changes as your HRT progresses, your weight shifts, and your training evolves. Recalculate any time your weight changes by 10+ lbs, you hit an HRT milestone, or your progress stalls for more than 3 weeks. <a href="https://transmacros.com" style="color:var(--trans-blue);text-decoration:none;font-weight:600">Recalculate anytime.</a></p>
+    </div>
+
     <div class="share-section">
       <h3>Share Your Results</h3>
       <p>Screenshot the card below or copy your numbers to share with friends, your coach, or your community.</p>
@@ -601,6 +615,14 @@ Uses event delegation — no onclick= attributes
       </div>
       <div class="share-actions">
         <button type="button" class="share-download-btn" id="share-download-btn">Download Share Card (PNG)</button>
+        <div class="share-social">
+          <a class="share-social-btn fb" id="share-fb" href="#" target="_blank" rel="noopener">Facebook</a>
+          <a class="share-social-btn tw" id="share-tw" href="#" target="_blank" rel="noopener">X / Twitter</a>
+          <div class="ig-wrap">
+            <button type="button" class="share-social-btn ig" id="share-ig">Instagram</button>
+            <div class="ig-tooltip" id="ig-tooltip">Download the image above and post it to Instagram</div>
+          </div>
+        </div>
         <button type="button" class="share-copy-btn" id="share-copy-btn">Or copy text to clipboard</button>
       </div>
       <p class="share-screenshot">Download the image and post it to your story, group chat, or send it to your coach.</p>
@@ -724,7 +746,7 @@ Uses event delegation — no onclick= attributes
     <a href="https://www.mysticaltranscendence.com" target="_blank" rel="noopener">Shop Supplements</a>
   </p>
   <p>© 2025 Transform Fitness Coaching by Trey Sheidler</p>
-  <p style="margin-top:8px">Macro calculations are educational estimates. Consult a registered dietitian for medical nutrition therapy.</p>
+  <p style="margin-top:8px">Macro calculations are personalized estimates based on your inputs and are intended for educational purposes only. Individual results vary. Your targets should be adjusted over time as your body, hormones, and goals change. Consult a registered dietitian for clinical nutrition therapy.</p>
 </footer>
 
 
@@ -1234,9 +1256,9 @@ const GHL_WEBHOOK_URL = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4nx
     applyCalorieAdjust(0);
   });
 
-  function generateShareCard() {
+  function generateShareCard(asBlob, callback) {
     var sd = window._shareData;
-    if (!sd) return;
+    if (!sd) { if (callback) callback(null); return; }
     var d = {
       calories: parseInt(document.getElementById('r-calories').textContent.replace(/,/g,''),10),
       protein: parseInt(document.getElementById('r-protein').textContent,10),
@@ -1376,11 +1398,16 @@ const GHL_WEBHOOK_URL = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4nx
     ctx.font = '400 18px sans-serif';
     ctx.fillText('Transform Fitness Coaching by Trey Sheidler', W/2, H - 40);
 
-    // Download
-    var link = document.createElement('a');
-    link.download = 'my-trans-macros.png';
-    link.href = canvas.toDataURL('image/png');
-    link.click();
+    // Download or return blob
+    if (asBlob && callback) {
+      canvas.toBlob(function(blob) { callback(blob); }, 'image/png');
+    } else {
+      var link = document.createElement('a');
+      link.download = 'my-trans-macros.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+      if (callback) callback(null);
+    }
   }
 
   if (document.getElementById('share-download-btn')) document.getElementById('share-download-btn').addEventListener('click', generateShareCard);
@@ -1399,6 +1426,60 @@ const GHL_WEBHOOK_URL = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4nx
         btn.classList.add('copied');
         setTimeout(function(){ btn.textContent='Or copy text to clipboard'; btn.classList.remove('copied'); }, 2000);
       });
+    }
+  });
+
+  function getShareText() {
+    var sd=window._shareData;
+    if (!sd) return '';
+    var cals=document.getElementById('r-calories').textContent.replace(/,/g,'');
+    var p=document.getElementById('r-protein').textContent;
+    var cr=document.getElementById('r-carbs').textContent;
+    var f=document.getElementById('r-fats').textContent;
+    return 'Just calculated my macros on the only calculator built for trans bodies. '+cals+' calories | '+p+' protein | '+cr+' carbs | '+f+' fats. Goal: '+sd.goal+'. HRT-adjusted and actually accurate for once. Get yours free: transmacros.com';
+  }
+
+  // Facebook share
+  if (document.getElementById('share-fb')) document.getElementById('share-fb').addEventListener('click', function(e) {
+    e.preventDefault();
+    window.open('https://www.facebook.com/sharer/sharer.php?u=https://transmacros.com','_blank','width=600,height=400');
+  });
+
+  // Twitter/X share
+  if (document.getElementById('share-tw')) document.getElementById('share-tw').addEventListener('click', function(e) {
+    e.preventDefault();
+    var txt=getShareText();
+    window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent(txt),'_blank','width=600,height=400');
+  });
+
+  // Instagram share — Web Share API on mobile, tooltip on desktop
+  if (document.getElementById('share-ig')) document.getElementById('share-ig').addEventListener('click', function() {
+    var isMobile='ontouchstart' in window||navigator.maxTouchPoints>0;
+    if (isMobile && navigator.share) {
+      // Generate canvas blob for Web Share API
+      var sd=window._shareData;
+      if (!sd) return;
+      var btn=this;
+      btn.textContent='Generating...';
+      // Reuse generateShareCard logic but get blob instead of downloading
+      var shareCanvas=document.createElement('canvas');
+      shareCanvas.width=1080; shareCanvas.height=1080;
+      // Call generateShareCard internally but intercept — simpler to just generate and share
+      generateShareCard(true, function(blob) {
+        if (blob) {
+          var file=new File([blob],'my-trans-macros.png',{type:'image/png'});
+          navigator.share({title:'My Trans Macros',text:getShareText(),files:[file]}).catch(function(){});
+        }
+        btn.textContent='Instagram';
+      });
+    } else {
+      // Desktop — show tooltip briefly
+      var tip=document.getElementById('ig-tooltip');
+      if (tip) {
+        tip.classList.add('desktop-only');
+        tip.style.display='block';
+        setTimeout(function(){ tip.style.display=''; tip.classList.remove('desktop-only'); },3000);
+      }
     }
   });
 
