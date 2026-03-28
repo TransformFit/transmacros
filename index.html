@@ -42,14 +42,13 @@ Uses event delegation — no onclick= attributes
   .calc-wrapper { background:var(--bg); position:relative; z-index:1; padding:0 24px 120px; }
   .calc-card { max-width:720px; margin:0 auto; background:var(--card); border:1px solid var(--border); border-radius:24px; overflow:hidden; box-shadow:0 40px 120px rgba(0,0,0,0.5); }
 
-  .progress-header { padding:28px 36px 24px; border-bottom:1px solid var(--border); background:var(--bg2); }
-  .progress-label { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
-  .progress-label span{font-size:0.8rem;color:var(--muted)} .progress-label strong{font-size:0.9rem;color:var(--text)}
-  .progress-track{height:4px;background:var(--bg3);border-radius:2px;overflow:hidden}
+  .progress-header { padding:20px 36px 20px; border-bottom:1px solid var(--border); background:var(--bg2); }
+  .progress-track{height:4px;background:var(--bg3);border-radius:2px;overflow:hidden;margin-bottom:14px}
   .progress-fill{height:100%;background:var(--trans-gradient);border-radius:2px;transition:width 0.5s cubic-bezier(0.4,0,0.2,1)}
-  .step-dots{display:flex;gap:8px;margin-top:12px}
-  .step-dot{height:4px;flex:1;border-radius:2px;background:var(--bg3);transition:background 0.4s}
-  .step-dot.active{background:var(--trans-blue)} .step-dot.done{background:var(--trans-pink)}
+  .step-labels{display:flex;justify-content:space-between}
+  .step-label{font-size:0.65rem;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--bg3);text-align:center;flex:1;transition:color 0.3s}
+  .step-label.active{color:var(--trans-blue)}
+  .step-label.done{color:var(--trans-pink)}
 
   .steps-container{overflow:hidden}
   .step{display:none;padding:36px 36px 32px}
@@ -119,6 +118,13 @@ Uses event delegation — no onclick= attributes
   .adjust-range-labels{display:flex;justify-content:space-between;font-size:0.7rem;color:var(--muted);margin-top:6px}
   .adjust-reset{display:inline-block;margin-top:10px;font-size:0.78rem;font-weight:600;color:var(--trans-blue);background:none;border:1px solid rgba(91,206,250,0.3);border-radius:100px;padding:5px 14px;cursor:pointer;transition:all 0.2s}
   .adjust-reset:hover{background:rgba(91,206,250,0.1)}
+
+  .skool-callout{background:linear-gradient(135deg,rgba(91,206,250,0.08),rgba(245,169,184,0.08));border:1px solid rgba(91,206,250,0.25);border-radius:var(--radius);padding:24px;text-align:center;margin-bottom:28px;display:none}
+  .skool-callout.visible{display:block}
+  .skool-callout h4{font-family:var(--font-display);font-size:1.1rem;color:var(--trans-white);margin-bottom:8px}
+  .skool-callout p{font-size:0.85rem;color:var(--muted);line-height:1.6;margin-bottom:16px}
+  .skool-callout a.skool-join{display:inline-flex;align-items:center;gap:8px;background:var(--trans-gradient);color:#0d0f14;font-family:var(--font-body);font-size:0.88rem;font-weight:600;padding:12px 28px;border-radius:100px;text-decoration:none;transition:transform 0.2s,box-shadow 0.2s;box-shadow:0 0 20px rgba(91,206,250,0.15)}
+  .skool-callout a.skool-join:hover{transform:translateY(-1px);box-shadow:0 0 30px rgba(91,206,250,0.3)}
 
   .share-section{margin-bottom:28px}
   .share-section h3{font-family:var(--font-display);font-size:1.1rem;color:var(--trans-white);margin-bottom:6px}
@@ -248,7 +254,8 @@ Uses event delegation — no onclick= attributes
     .trust-item{font-size:0.78rem}
     .calc-wrapper{padding:0 12px 80px}
     .calc-card{border-radius:18px}
-    .progress-header{padding:20px 20px 18px}
+    .progress-header{padding:16px 16px 14px}
+    .step-label{font-size:0.55rem;letter-spacing:0.03em}
     .step{padding:24px 18px 24px}
     .step-title{font-size:1.35rem}
     .step-desc{font-size:0.85rem;margin-bottom:20px}
@@ -298,13 +305,15 @@ Uses event delegation — no onclick= attributes
       <span>Calculate My Macros</span>
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
     </a>
+    <p style="font-size:0.78rem;color:var(--muted);margin-top:14px">Takes about 90 seconds</p>
     <div class="trust-row">
       <div class="trust-item"><div class="dot"></div><span>HRT-aware formulas</span></div>
       <div class="trust-item"><div class="dot"></div><span>Intersex-inclusive</span></div>
       <div class="trust-item"><div class="dot"></div><span>Trans-affirming</span></div>
       <div class="trust-item"><div class="dot"></div><span>Free, always</span></div>
     </div>
-    <div style="margin-top:28px;display:flex;align-items:center;justify-content:center;gap:10px">
+    <p style="font-size:0.82rem;color:var(--muted);margin-top:24px">Join 1,200+ trans people who've already calculated their macros</p>
+    <div style="margin-top:16px;display:flex;align-items:center;justify-content:center;gap:10px">
       <span style="font-size:0.72rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted)">Powered by</span>
       <a href="https://www.mysticaltranscendence.com" target="_blank" rel="noopener" style="text-decoration:none">
         <div class="mt-badge">
@@ -332,15 +341,14 @@ Uses event delegation — no onclick= attributes
   </div>
 
   <div class="progress-header">
-    <div class="progress-label">
-      <strong id="step-title-label">Step 1 of 6</strong>
-      <span id="step-name-label">Body Stats</span>
-    </div>
     <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:16.6%"></div></div>
-    <div class="step-dots">
-      <div class="step-dot active" id="dot-0"></div><div class="step-dot" id="dot-1"></div>
-      <div class="step-dot" id="dot-2"></div><div class="step-dot" id="dot-3"></div>
-      <div class="step-dot" id="dot-4"></div><div class="step-dot" id="dot-5"></div>
+    <div class="step-labels">
+      <div class="step-label active" id="slbl-0">Stats</div>
+      <div class="step-label" id="slbl-1">Identity</div>
+      <div class="step-label" id="slbl-2">HRT</div>
+      <div class="step-label" id="slbl-3">Goals</div>
+      <div class="step-label" id="slbl-4">You</div>
+      <div class="step-label" id="slbl-5">Results</div>
     </div>
   </div>
 
@@ -644,6 +652,12 @@ Uses event delegation — no onclick= attributes
       <tbody id="meal-table-body"></tbody>
     </table>
 
+    <div class="skool-callout" id="skool-callout">
+      <h4>You said you're interested in community</h4>
+      <p>Join 1,200+ trans people supporting each other with training, nutrition, and accountability — no explaining your pronouns required.</p>
+      <a href="https://www.skool.com/transformfitnesscommunity" target="_blank" rel="noopener" class="skool-join">Join the Free Community</a>
+    </div>
+
     <div class="cta-grid">
       <div class="cta-mini" data-calc-action="openSkool">
         <div class="cta-icon">🏳️‍⚧️</div>
@@ -740,12 +754,11 @@ const GHL_WEBHOOK_URL = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4nx
   }
 
   window.updateProgress = function() {
-    const pct = ((currentStep+1)/totalSteps)*100;
+    var pct = ((currentStep+1)/totalSteps)*100;
     document.getElementById('progress-fill').style.width = pct+'%';
-    document.getElementById('step-title-label').textContent = `Step ${currentStep+1} of ${totalSteps}`;
-    document.getElementById('step-name-label').textContent = stepNames[currentStep];
-    for (let i=0;i<totalSteps;i++) {
-      document.getElementById('dot-'+i).className = 'step-dot'+(i<currentStep?' done':i===currentStep?' active':'');
+    for (var i=0;i<totalSteps;i++) {
+      var lbl = document.getElementById('slbl-'+i);
+      if (lbl) lbl.className = 'step-label'+(i<currentStep?' done':i===currentStep?' active':'');
     }
   }
 
@@ -1112,6 +1125,14 @@ const GHL_WEBHOOK_URL = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4nx
       }
     }
     console.log('glp1 set');
+
+    // Skool callout based on community interest
+    var communityVal=(document.querySelector('input[name="community"]:checked')||{}).value||'';
+    var skoolBox=document.getElementById('skool-callout');
+    if (skoolBox) {
+      if (communityVal==='Yes'||communityVal==='Maybe') skoolBox.classList.add('visible');
+      else skoolBox.classList.remove('visible');
+    }
 
     var meals=[{name:'Breakfast',p:0.25,c:0.25,f:0.25,cal:0.25},{name:'Lunch',p:0.30,c:0.30,f:0.30,cal:0.30},{name:'Dinner',p:0.35,c:0.35,f:0.30,cal:0.30},{name:'Snack',p:0.10,c:0.10,f:0.15,cal:0.15}];
     document.getElementById('meal-table-body').innerHTML=meals.map(function(m){return '<tr><td>'+m.name+'</td><td>'+Math.round(protein*m.p)+'g</td><td>'+Math.round(carbs*m.c)+'g</td><td>'+Math.round(fats*m.f)+'g</td><td>'+Math.round(targetCals*m.cal)+'</td></tr>';}).join('');
