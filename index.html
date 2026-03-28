@@ -137,10 +137,12 @@ Uses event delegation — no onclick= attributes
   .share-card-num .lbl{font-size:0.65rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-top:4px}
   .share-card-tagline{text-align:center;font-size:0.78rem;color:var(--muted);line-height:1.5;margin-bottom:0}
   .share-card-tagline strong{color:var(--trans-blue)}
-  .share-actions{display:flex;gap:12px;margin-top:16px;flex-wrap:wrap}
-  .share-copy-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;background:var(--trans-gradient);color:#0d0f14;font-family:var(--font-body);font-size:0.85rem;font-weight:600;padding:12px 20px;border-radius:100px;border:none;cursor:pointer;transition:transform 0.2s,box-shadow 0.2s;box-shadow:0 0 20px rgba(91,206,250,0.15)}
-  .share-copy-btn:hover{transform:translateY(-1px);box-shadow:0 0 30px rgba(91,206,250,0.3)}
-  .share-copy-btn.copied{background:rgba(91,206,250,0.15);color:var(--trans-blue);box-shadow:none}
+  .share-actions{display:flex;flex-direction:column;gap:10px;margin-top:16px}
+  .share-download-btn{display:flex;align-items:center;justify-content:center;gap:8px;background:var(--trans-gradient);color:#0d0f14;font-family:var(--font-body);font-size:0.9rem;font-weight:600;padding:14px 24px;border-radius:100px;border:none;cursor:pointer;transition:transform 0.2s,box-shadow 0.2s;box-shadow:0 0 20px rgba(91,206,250,0.15);width:100%}
+  .share-download-btn:hover{transform:translateY(-1px);box-shadow:0 0 30px rgba(91,206,250,0.3)}
+  .share-copy-btn{display:flex;align-items:center;justify-content:center;gap:8px;background:none;color:var(--muted);font-family:var(--font-body);font-size:0.8rem;font-weight:500;padding:10px 20px;border-radius:100px;border:1px solid var(--border);cursor:pointer;transition:all 0.2s;width:100%}
+  .share-copy-btn:hover{border-color:var(--trans-blue);color:var(--trans-blue)}
+  .share-copy-btn.copied{border-color:var(--trans-blue);color:var(--trans-blue);background:rgba(91,206,250,0.08)}
   .share-screenshot{text-align:center;font-size:0.75rem;color:var(--muted);margin-top:12px}
 
   .macro-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:28px}
@@ -501,7 +503,7 @@ Uses event delegation — no onclick= attributes
           <input type="tel" id="phone" placeholder="e.g. (317) 555-0100">
           <p class="privacy-note" style="text-align:left;margin-top:4px;margin-bottom:0">📱 If provided, we'll text you an SMS-friendly macro summary + optional weekly check-in reminders.</p>
 
-          <button type="button" class="btn-next" data-calc-action="showResults" onclick="showResults()" style="margin-top:20px">Unlock My Results →</button>
+          <button type="button" class="btn-next" id="unlock-btn" data-calc-action="showResults" onclick="showResults()" style="margin-top:20px">Unlock My Results →</button>
           <p class="privacy-note" style="margin-top:12px">🔒 Your info is private. No spam, ever. Unsubscribe anytime.</p>
         </div>
       </div>
@@ -556,9 +558,10 @@ Uses event delegation — no onclick= attributes
         </div>
       </div>
       <div class="share-actions">
-        <button type="button" class="share-copy-btn" id="share-copy-btn">Copy to Clipboard</button>
+        <button type="button" class="share-download-btn" id="share-download-btn">Download Share Card (PNG)</button>
+        <button type="button" class="share-copy-btn" id="share-copy-btn">Or copy text to clipboard</button>
       </div>
-      <p class="share-screenshot">Screenshot this card and share it on your story, in your group chat, or with your coach.</p>
+      <p class="share-screenshot">Download the image and post it to your story, group chat, or send it to your coach.</p>
     </div>
 
     <div class="hrt-callout" id="hrt-callout">
@@ -644,7 +647,7 @@ Uses event delegation — no onclick= attributes
   </div>
   <div class="proof-grid">
     <div class="proof-card"><div class="proof-stars">★★★★★</div><p class="proof-text">"Finally a coach who actually gets it. Trey accounted for my T levels, my training age, everything. Down 22 lbs in 4 months."</p><div class="proof-author">Marcus D. · <span>Trans man, 8 months on T</span></div></div>
-    <div class="proof-card"><div class="proof-stars">★★★★★</div><p class="proof-text">"I\'ve tried every calculator out there and they all give me female defaults. This one actually sees me. The HRT adjustment is a game changer."</p><div class="proof-author">Jordan K. · <span>Non-binary, 2 years HRT</span></div></div>
+    <div class="proof-card"><div class="proof-stars">★★★★★</div><p class="proof-text">"I've tried every calculator out there and they all give me female defaults. This one actually sees me. The HRT adjustment is a game changer."</p><div class="proof-author">Jordan K. · <span>Non-binary, 2 years HRT</span></div></div>
     <div class="proof-card"><div class="proof-stars">★★★★★</div><p class="proof-text">"Trey understands the intersection of gender and fitness in a way no cis coach does. Best investment I\'ve made in my transition."</p><div class="proof-author">Alex R. · <span>Trans man, pre-T</span></div></div>
   </div>
 </section>
@@ -1042,7 +1045,8 @@ const GHL_WEBHOOK_URL = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4nx
     document.getElementById('share-protein').textContent=protein+'g';
     document.getElementById('share-carbs').textContent=carbs+'g';
     document.getElementById('share-fats').textContent=fats+'g';
-    window._shareText='Just got my macros from the only calculator built for trans bodies. '+targetCals+' cal | '+protein+'g protein | '+carbs+'g carbs | '+fats+'g fats \u2014 Goal: '+goal+' transmacros.com';
+    window._shareText='Just calculated my macros on the only calculator built for trans bodies. '+targetCals+' calories | '+protein+'g protein | '+carbs+'g carbs | '+fats+'g fats. Goal: '+goal+'. HRT-adjusted and actually accurate for once. Get yours free: transmacros.com';
+    window._shareData={calories:targetCals,protein:protein,carbs:carbs,fats:fats,goal:goal,name:fname,onHrt:hrtOn};
     console.log('main values set');
 
     var supp=getSupplementRec(goal,gaab,identity,hrtMonths);
@@ -1164,13 +1168,170 @@ const GHL_WEBHOOK_URL = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4nx
     applyCalorieAdjust(0);
   });
 
+  function generateShareCard() {
+    var sd = window._shareData;
+    if (!sd) return;
+    var d = {
+      calories: parseInt(document.getElementById('r-calories').textContent.replace(/,/g,''),10),
+      protein: parseInt(document.getElementById('r-protein').textContent,10),
+      carbs: parseInt(document.getElementById('r-carbs').textContent,10),
+      fats: parseInt(document.getElementById('r-fats').textContent,10),
+      goal: sd.goal,
+      name: sd.name,
+      onHrt: sd.onHrt
+    };
+    var W = 1080, H = 1080;
+    var canvas = document.createElement('canvas');
+    canvas.width = W; canvas.height = H;
+    var ctx = canvas.getContext('2d');
+
+    // Background
+    ctx.fillStyle = '#0d0f14';
+    ctx.fillRect(0, 0, W, H);
+
+    // Subtle radial glow
+    var glow = ctx.createRadialGradient(W/2, H/2, 0, W/2, H/2, 400);
+    glow.addColorStop(0, 'rgba(91,206,250,0.06)');
+    glow.addColorStop(0.5, 'rgba(245,169,184,0.04)');
+    glow.addColorStop(1, 'transparent');
+    ctx.fillStyle = glow;
+    ctx.fillRect(0, 0, W, H);
+
+    // Trans flag stripe across top
+    var stripeH = 12, stripeColors = ['#5BCEFA','#F5A9B8','#FFFFFF','#F5A9B8','#5BCEFA'];
+    var sw = W / 5;
+    for (var i = 0; i < 5; i++) {
+      ctx.fillStyle = stripeColors[i];
+      ctx.fillRect(sw * i, 0, sw + 1, stripeH);
+    }
+
+    // "TRANSFORM FITNESS" eyebrow
+    ctx.fillStyle = '#5BCEFA';
+    ctx.font = '600 22px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.letterSpacing = '4px';
+    ctx.fillText('TRANSFORM FITNESS', W/2, 80);
+
+    // Goal
+    ctx.fillStyle = '#F5A9B8';
+    ctx.font = '600 28px sans-serif';
+    ctx.fillText('Goal: ' + d.goal, W/2, 130);
+
+    // Small stripe divider
+    var divW = 120, divY = 165;
+    for (var i = 0; i < 5; i++) {
+      ctx.fillStyle = stripeColors[i];
+      ctx.fillRect((W - divW)/2 + (divW/5)*i, divY, divW/5 + 1, 4);
+    }
+
+    // Personalized name
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = 'italic 48px Georgia, serif';
+    ctx.textAlign = 'center';
+    var greeting = d.name ? 'Here\'s your plan, ' + d.name + '.' : 'Here\'s your plan.';
+    ctx.fillText(greeting, W/2, 240);
+
+    // Large calorie number with gradient
+    var calText = d.calories.toLocaleString();
+    ctx.font = 'italic 140px Georgia, serif';
+    var grad = ctx.createLinearGradient(W/2 - 200, 0, W/2 + 200, 0);
+    grad.addColorStop(0, '#5BCEFA');
+    grad.addColorStop(1, '#F5A9B8');
+    ctx.fillStyle = grad;
+    ctx.fillText(calText, W/2, 420);
+
+    // "CALORIES / DAY" label
+    ctx.fillStyle = '#7a8099';
+    ctx.font = '600 24px sans-serif';
+    ctx.fillText('CALORIES / DAY', W/2, 465);
+
+    // Macro row - three columns
+    var macros = [
+      { label: 'PROTEIN', value: d.protein + 'g', color: '#5BCEFA' },
+      { label: 'CARBS', value: d.carbs + 'g', color: '#F5A9B8' },
+      { label: 'FATS', value: d.fats + 'g', color: '#FFFFFF' }
+    ];
+    var macroY = 580, colW = W / 3;
+    for (var i = 0; i < 3; i++) {
+      var cx = colW * i + colW / 2;
+
+      // Top accent line
+      ctx.fillStyle = macros[i].color;
+      ctx.fillRect(cx - 30, macroY - 40, 60, 3);
+
+      // Label
+      ctx.fillStyle = '#7a8099';
+      ctx.font = '600 18px sans-serif';
+      ctx.fillText(macros[i].label, cx, macroY);
+
+      // Value
+      ctx.fillStyle = '#FFFFFF';
+      ctx.font = 'italic 64px Georgia, serif';
+      ctx.fillText(macros[i].value, cx, macroY + 70);
+    }
+
+    // HRT badge
+    if (d.onHrt) {
+      var badgeText = 'HRT-ADJUSTED';
+      ctx.font = '700 18px sans-serif';
+      var bw = ctx.measureText(badgeText).width + 32;
+      var bx = (W - bw) / 2, by = 720;
+      ctx.fillStyle = 'rgba(91,206,250,0.15)';
+      ctx.beginPath();
+      ctx.roundRect(bx, by, bw, 36, 18);
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(91,206,250,0.4)';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.roundRect(bx, by, bw, 36, 18);
+      ctx.stroke();
+      ctx.fillStyle = '#5BCEFA';
+      ctx.fillText(badgeText, W/2, by + 24);
+    }
+
+    // Bottom divider stripe
+    var btmY = d.onHrt ? 800 : 760;
+    for (var i = 0; i < 5; i++) {
+      ctx.fillStyle = stripeColors[i];
+      ctx.fillRect((W - divW)/2 + (divW/5)*i, btmY, divW/5 + 1, 4);
+    }
+
+    // Tagline
+    ctx.fillStyle = '#7a8099';
+    ctx.font = '400 24px sans-serif';
+    ctx.fillText('Calculated at transmacros.com', W/2, btmY + 50);
+
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = '500 22px sans-serif';
+    ctx.fillText('The only macro calculator built for trans bodies.', W/2, btmY + 85);
+
+    // Bottom branding
+    ctx.fillStyle = '#7a8099';
+    ctx.font = '400 18px sans-serif';
+    ctx.fillText('Transform Fitness Coaching by Trey Sheidler', W/2, H - 40);
+
+    // Download
+    var link = document.createElement('a');
+    link.download = 'my-trans-macros.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  }
+
+  if (document.getElementById('share-download-btn')) document.getElementById('share-download-btn').addEventListener('click', generateShareCard);
+
   if (document.getElementById('share-copy-btn')) document.getElementById('share-copy-btn').addEventListener('click', function() {
     var btn=this;
-    if (window._shareText && navigator.clipboard) {
-      navigator.clipboard.writeText(window._shareText).then(function() {
+    var sd=window._shareData;
+    if (sd && navigator.clipboard) {
+      var cals=document.getElementById('r-calories').textContent.replace(/,/g,'');
+      var p=document.getElementById('r-protein').textContent;
+      var c=document.getElementById('r-carbs').textContent;
+      var f=document.getElementById('r-fats').textContent;
+      var txt='Just calculated my macros on the only calculator built for trans bodies. '+cals+' calories | '+p+' protein | '+c+' carbs | '+f+' fats. Goal: '+sd.goal+'. HRT-adjusted and actually accurate for once. Get yours free: transmacros.com';
+      navigator.clipboard.writeText(txt).then(function() {
         btn.textContent='Copied!';
         btn.classList.add('copied');
-        setTimeout(function(){ btn.textContent='Copy to Clipboard'; btn.classList.remove('copied'); }, 2000);
+        setTimeout(function(){ btn.textContent='Or copy text to clipboard'; btn.classList.remove('copied'); }, 2000);
       });
     }
   });
@@ -1189,5 +1350,11 @@ const GHL_WEBHOOK_URL = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4nx
     else if (action === 'setUnit') setUnit(param);
     else if (action === 'openSkool') window.open('https://www.skool.com/transformfitnesscommunity','_blank');
     else if (action === 'openEssentials') window.open('https://www.transformfitness.net/essentials','_blank');
+  });
+
+  // Guaranteed fallback binding for Unlock My Results button
+  document.addEventListener('DOMContentLoaded', function() {
+    var unlockBtn = document.getElementById('unlock-btn');
+    if (unlockBtn) unlockBtn.addEventListener('click', showResults);
   });
 </script>
