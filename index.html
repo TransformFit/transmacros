@@ -603,310 +603,7 @@ Uses event delegation — no onclick= attributes
   let useMetric = false;
   const stepNames = ['Body Stats','Gender & Identity','Hormone Therapy','Activity & Goals','Quick Questions','Your Results'];
 
-  window.scrollToCalc = function(e) { e.preventDefault(); document.getElementById('calculator').scrollIntoView({behavior:'smooth',block:'start'}); }
-
-  window.setUnit = function(u) {
-    useMetric = u === 'metric';
-    document.getElementById('unit-imperial').classList.toggle('active', !useMetric);
-    document.getElementById('unit-metric').classList.toggle('active', useMetric);
-    document.getElementById('weight-unit-label').textContent = useMetric ? '(kg)' : '(lbs)';
-    document.getElementById('height-unit-label').textContent = useMetric ? '(cm)' : '(inches)';
-    document.getElementById('weight').placeholder = useMetric ? 'e.g. 84' : 'e.g. 185';
-    document.getElementById('height').placeholder = useMetric ? 'e.g. 173' : 'e.g. 68';
-  }
-
-  window.updateProgress = function() {
-    const pct = ((currentStep+1)/totalSteps)*100;
-    document.getElementById('progress-fill').style.width = pct+'%';
-    document.getElementById('step-title-label').textContent = `Step ${currentStep+1} of ${totalSteps}`;
-    document.getElementById('step-name-label').textContent = stepNames[currentStep];
-    for (let i=0;i<totalSteps;i++) {
-      document.getElementById('dot-'+i).className = 'step-dot'+(i<currentStep?' done':i===currentStep?' active':'');
-    }
-  }
-
-  window.showErr = function(id) { document.getElementById(id).classList.add('visible'); const el=document.getElementById(id.replace('-err','')); if(el) el.classList.add('error'); }
-  window.hideErr = function(id) { document.getElementById(id).classList.remove('visible'); const el=document.getElementById(id.replace('-err','')); if(el) el.classList.remove('error'); }
-
-  window.validateStep = function() {
-    if (currentStep===0) {
-      let ok=true;
-      if (!document.getElementById('weight').value) { showErr('weight-err'); ok=false; } else hideErr('weight-err');
-      if (!document.getElementById('height').value) { showErr('height-err'); ok=false; } else hideErr('height-err');
-      if (!document.getElementById('age').value||document.getElementById('age').value<13) { showErr('age-err'); ok=false; } else hideErr('age-err');
-      return ok;
-    }
-    if (currentStep===1) {
-      let ok=true;
-      const gaab=document.querySelector('input[name="gaab"]:checked');
-      if (!gaab) { showErr('gaab-err'); ok=false; } else hideErr('gaab-err');
-      if (gaab&&gaab.value==='Intersex'&&!document.querySelector('input[name="horm-env"]:checked')) { showErr('henv-err'); ok=false; } else hideErr('henv-err');
-      if (!document.querySelector('input[name="identity"]:checked')) { showErr('identity-err'); ok=false; } else hideErr('identity-err');
-      return ok;
-    }
-    if (currentStep===3) {
-      let ok=true;
-      if (!document.getElementById('activity').value) { showErr('activity-err'); ok=false; } else hideErr('activity-err');
-      if (!document.querySelector('input[name="goal"]:checked')) { showErr('goal-err'); ok=false; } else hideErr('goal-err');
-      return ok;
-    }
-    return true;
-  }
-
-  window.nextStep = function() {
-    if (!validateStep()) return;
-    document.getElementById('step-'+currentStep).classList.remove('active');
-    currentStep++;
-    document.getElementById('step-'+currentStep).classList.add('active');
-    updateProgress(); updateIdentityNote(); updateHRTNote();
-  }
-  window.prevStep = function() {
-    document.getElementById('step-'+currentStep).classList.remove('active');
-    currentStep--;
-    document.getElementById('step-'+currentStep).classList.add('active');
-    updateProgress();
-  }
-
-  document.querySelectorAll('input[name="gaab"]').forEach(el => {
-    el.addEventListener('change', function() {
-      document.getElementById('intersex-field').classList.toggle('visible', this.value==='Intersex');
-      updateIdentityNote();
-    });
-  });
-
-  window.toggleHRT = function() {
-    hrtOn=!hrtOn;
-    document.getElementById('hrt-toggle').classList.toggle('on',hrtOn);
-    document.getElementById('hrt-toggle-label').textContent=hrtOn?'Yes':'No';
-    document.getElementById('hrt-months-field').classList.toggle('visible',hrtOn);
-    updateHRTNote();
-  }
-
-  window.getGAAB = function() {
-    const gaab=document.querySelector('input[name="gaab"]:checked');
-    if (!gaab) return null;
-    if (gaab.value==='Intersex') {
-      const henv=document.querySelector('input[name="horm-env"]:checked');
-      if (!henv) return 'Intersex-Mixed';
-      if (henv.value==='Androgenic') return 'Male';
-      if (henv.value==='Estrogenic') return 'Female';
-      if (henv.value==='HRT') return 'Intersex-HRT';
-      return 'Intersex-Mixed';
-    }
-    return gaab.value;
-  }
-
-  window.updateIdentityNote = function() {
-    if (currentStep!==1) return;
-    const gaab=document.querySelector('input[name="gaab"]:checked');
-    const id=document.querySelector('input[name="identity"]:checked');
-    if (!gaab||!id) return;
-    const note=document.getElementById('identity-note');
-    const txt=document.getElementById('identity-note-text');
-    const msgs={
-      'Female-Male':'As a trans man (AFAB), testosterone typically increases your metabolic rate up to ~22% over 24 months. Your BMR gradually shifts toward male-range values as HRT continues.',
-      'Male-Female':'As a trans woman (AMAB), estrogen + T-blockers gradually reduce your metabolic rate by up to ~6% over 6 months.',
-      'Female-Non-binary':'For non-binary folks (AFAB), we apply a partial upward metabolic adjustment reflecting partial or low-dose HRT.',
-      'Male-Non-binary':'For non-binary folks (AMAB), we apply a partial downward metabolic adjustment.',
-      'Intersex-any':'For intersex individuals, we calculate your BMR from your hormonal environment rather than a binary birth sex assumption — giving you a more accurate baseline.',
-    };
-    let key = gaab.value==='Intersex' ? 'Intersex-any' : `${gaab.value}-${id.value}`;
-    const msg = msgs[key] || '';
-    if (msg) { txt.textContent=msg; note.style.display='block'; } else { note.style.display='none'; }
-  }
-
-  window.updateHRTNote = function() {
-    if (currentStep!==2) return;
-    const note=document.getElementById('hrt-note');
-    if (!hrtOn) { note.style.display='none'; return; }
-    const gaab=getGAAB();
-    const id=document.querySelector('input[name="identity"]:checked');
-    const months=parseFloat(document.getElementById('hrt-duration').value)||0;
-    if (!gaab||!id) return;
-    const factor=calcHRTFactor(gaab,id.value,months);
-    const pct=Math.round((factor-1)*100);
-    document.getElementById('hrt-note-text').textContent=`Based on ${months} months on HRT, we're adjusting your TDEE by ${pct>0?'+':''}${pct}% to reflect your changing metabolism.`;
-    note.style.display='block';
-  }
-
-  document.querySelectorAll('input[name="identity"]').forEach(el=>el.addEventListener('change',updateIdentityNote));
-  document.getElementById('hrt-duration').addEventListener('input',updateHRTNote);
-
-  window.calcHRTFactor = function(gaab,identity,months) {
-    if (!hrtOn) return 1;
-    // Trans women / AMAB moving toward female hormones
-    if ((gaab==='Male'||gaab==='Intersex-HRT')&&identity==='Female') return months<6?1-0.01*months:0.94;
-    // Trans men / AFAB moving toward male hormones
-    if ((gaab==='Female'||gaab==='Intersex-HRT')&&identity==='Male') {
-      if (months<=12) return 1+0.015*months;
-      if (months<=24) return 1.18+0.003*(months-12);
-      return 1.216;
-    }
-    if (identity==='Non-binary') {
-      if (gaab==='Male') return 0.97;
-      if (gaab==='Female') return 1.09;
-      return 1.03; // Intersex non-binary
-    }
-    if (gaab==='Intersex-Mixed') return 1.0;
-    return 1;
-  }
-
-  window.calcBMR = function(weight_lbs,height_in,age,gaab,identity,months) {
-    const wk=weight_lbs*0.453592, hc=height_in*2.54;
-    if (gaab==='Intersex-Mixed') return 10*wk+6.25*hc-5*age-78; // avg of +5 and -161
-    if ((gaab==='Female'||gaab==='Intersex-HRT')&&identity==='Male'&&hrtOn) {
-      const progress=Math.min(months/24,1);
-      return 10*wk+6.25*hc-5*age+(-161+166*progress);
-    }
-    return 10*wk+6.25*hc-5*age+(gaab==='Male'?5:-161);
-  }
-
-  const MT = 'https://www.mysticaltranscendence.com';
-  window.getSupplementRec = function(goal,gaab,identity,months) {
-    const isTransMan=(identity==='Male'&&gaab!=='Male');
-    if (goal==='Muscle Gain'||(isTransMan&&months>6&&hrtOn)) return {
-      icon:'💪',
-      title:'Surge Creatine + Protein — Top pick for your goal',
-      text:'Trans men on T see amplified muscle gains with creatine monohydrate. Surge by Mystical Transcendence is third-party tested, one ingredient, clinically backed. Stack it with MT protein and this is the highest-leverage supplement combo you can take right now.',
-      link:'Shop Surge Creatine →',
-      href: MT+'/products/morph-creatine',
-      secondary:'Shop Protein →',
-      secondaryHref: MT+'/collections/protein'
-    };
-    if (goal==='Fat Loss') return {
-      icon:'🔥',
-      title:'Protein + Recovery Stack — Fat loss essentials',
-      text:'High protein intake preserves muscle during a caloric deficit. Mystical Transcendence\'s protein formulas are designed for queer athletes — no bro-science, no weird energy. Stack with recovery & hydration to keep performance up during your deficit.',
-      link:'Shop Protein →',
-      href: MT+'/collections/protein',
-      secondary:'Shop Recovery →',
-      secondaryHref: MT+'/collections/recovery-hydration'
-    };
-    if (goal==='Recomp') return {
-      icon:'⚖️',
-      title:'Surge Creatine + Recovery — Recomp stack',
-      text:'Creatine supports muscle preservation during a slight deficit while recovery formulas support joint health as your body composition shifts. Both are staples for clients in a recomp phase.',
-      link:'Shop Surge Creatine →',
-      href: MT+'/products/morph-creatine',
-      secondary:'Shop Recovery →',
-      secondaryHref: MT+'/collections/recovery-hydration'
-    };
-    return {
-      icon:'🌱',
-      title:'Premium Sports Nutrition — Maintenance essentials',
-      text:'For maintenance, keep it simple: a quality protein source to hit your daily target and a solid recovery formula. Mystical Transcendence\'s sports nutrition line is built for queer athletes at every level.',
-      link:'Shop Sports Nutrition →',
-      href: MT+'/collections/premium-sports-nutrition',
-      secondary:'Shop All Products →',
-      secondaryHref: MT+'/collections/all'
-    };
-  }
-
-  window.showResults = function() {
-    const email=document.getElementById('email').value;
-    if (!email||!email.includes('@')||!email.includes('.')) { showErr('email-err'); return; }
-    hideErr('email-err');
-
-    const weightRaw=parseFloat(document.getElementById('weight').value);
-    const heightRaw=parseFloat(document.getElementById('height').value);
-    const age=parseFloat(document.getElementById('age').value);
-    const weight_lbs=useMetric?weightRaw*2.20462:weightRaw;
-    const height_in=useMetric?heightRaw/2.54:heightRaw;
-
-    const gaabRaw=document.querySelector('input[name="gaab"]:checked').value;
-    const gaab=getGAAB();
-    const identity=document.querySelector('input[name="identity"]:checked').value;
-    const activityMult=parseFloat(document.getElementById('activity').value);
-    const goal=document.querySelector('input[name="goal"]:checked').value;
-    const hrtMonths=hrtOn?(parseFloat(document.getElementById('hrt-duration').value)||0):0;
-    const glp1=document.querySelector('input[name="glp1"]:checked')?.value||'';
-
-    const bmr=Math.round(calcBMR(weight_lbs,height_in,age,gaab,identity,hrtMonths));
-    const tdee=Math.round(bmr*activityMult);
-    const hrtFactor=calcHRTFactor(gaab,identity,hrtMonths);
-    const adjTDEE=Math.round(tdee*hrtFactor);
-    const goalAdj={'Fat Loss':-500,'Muscle Gain':300,'Recomp':-200,'Maintenance':0}[goal]||0;
-    const targetCals=Math.round(adjTDEE+goalAdj);
-
-    let proteinPerLb=goal==='Muscle Gain'?1.1:goal==='Fat Loss'?1.2:0.9;
-    if ((gaab==='Female'||gaab==='Intersex-HRT')&&identity==='Male'&&hrtOn&&hrtMonths>12) proteinPerLb=Math.min(proteinPerLb+0.1,1.3);
-    const protein=Math.round(weight_lbs*proteinPerLb);
-    const fats=Math.round((targetCals*0.25)/9);
-    const carbs=Math.max(Math.round((targetCals-(protein*4)-(fats*9))/4),0);
-    const fiber=Math.round(targetCals/1000*14);
-    const water_oz=Math.round(weight_lbs*0.67);
-    const trainCals=Math.round(targetCals*1.1);
-    const restCals=Math.round(targetCals*0.9);
-
-    let insightText='';
-    if (gaabRaw==='Intersex') {
-      const henv=document.querySelector('input[name="horm-env"]:checked')?.value||'Mixed';
-      insightText=`Your BMR is calculated from your hormonal environment (${henv.toLowerCase()}) rather than a binary birth sex assumption.${hrtOn?` With ${hrtMonths} months on HRT, a ${Math.round((hrtFactor-1)*100)}% metabolic adjustment has been applied.`:' No HRT adjustment applied.'}`;
-    } else if (!hrtOn) {
-      insightText='No HRT adjustment applied. Your macros are based on your current hormonal baseline.';
-    } else if (gaab==='Female'&&identity==='Male') {
-      const pct=Math.round((hrtFactor-1)*100);
-      insightText=`After ${hrtMonths} months on T, your metabolic rate has increased by ~${pct}%. Protein target is elevated to ${proteinPerLb.toFixed(1)}g/lb to support muscle synthesis. Reassess at your 6, 12, and 24 month marks.`;
-    } else if (gaab==='Male'&&identity==='Female') {
-      const pct=Math.round((1-hrtFactor)*100);
-      insightText=`After ${hrtMonths} months on HRT, your metabolic rate has decreased by ~${pct}%. Targets are adjusted accordingly. Don't under-eat — your body needs fuel to transition.`;
-    } else if (identity==='Non-binary') {
-      insightText=`A ${Math.round((hrtFactor-1)*100)}% metabolic adjustment has been applied based on your hormonal environment.`;
-    }
-
-    document.getElementById('r-calories').textContent=targetCals.toLocaleString();
-    document.getElementById('r-goal-label').textContent=`Goal: ${goal} · HRT Adjustment: ${Math.round((hrtFactor-1)*100)}%`;
-    document.getElementById('r-protein').textContent=protein;
-    document.getElementById('r-protein-cals').textContent=(protein*4)+' cal';
-    document.getElementById('r-carbs').textContent=carbs;
-    document.getElementById('r-carbs-cals').textContent=(carbs*4)+' cal';
-    document.getElementById('r-fats').textContent=fats;
-    document.getElementById('r-fats-cals').textContent=(fats*9)+' cal';
-    document.getElementById('hrt-insight-text').textContent=insightText;
-    document.getElementById('r-train-cals').textContent=trainCals.toLocaleString();
-    document.getElementById('r-rest-cals').textContent=restCals.toLocaleString();
-    document.getElementById('r-fiber').textContent=fiber+'g';
-    document.getElementById('r-water').textContent=useMetric?Math.round(water_oz*29.57)+' ml':water_oz+' oz';
-    document.getElementById('r-water-unit').textContent=useMetric?'ml/day minimum':'oz/day minimum';
-    document.getElementById('r-bmr').textContent=bmr.toLocaleString();
-    document.getElementById('r-tdee').textContent=adjTDEE.toLocaleString();
-
-    const supp=getSupplementRec(goal,gaab,identity,hrtMonths);
-    document.getElementById('supp-icon').textContent=supp.icon;
-    document.getElementById('supp-title').textContent=supp.title;
-    document.getElementById('supp-text').textContent=supp.text;
-    document.getElementById('supp-link').textContent=supp.link;
-    document.getElementById('supp-link').href=supp.href;
-    const sec=document.getElementById('supp-link-secondary');
-    sec.textContent=supp.secondary;
-    sec.href=supp.secondaryHref;
-    sec.style.display=supp.secondary?'inline':'none';
-
-    if (glp1==='Interested'||glp1==='No') {
-      document.getElementById('cta-headline').textContent='Interested in GLP-1 Medical Weight Loss?';
-      document.getElementById('cta-body').textContent='Our medically supervised GLP-1 program is built specifically for trans bodies. No judgment, no generic protocols — just results.';
-      var glpBtn=document.createElement('a');
-      glpBtn.href='https://glp1.transformfitness.net';
-      glpBtn.target='_blank';
-      glpBtn.className='btn-next';
-      glpBtn.style.cssText='display:block;text-align:center;text-decoration:none;margin-top:16px;padding:16px;font-size:1rem;font-weight:600;border-radius:100px;background:linear-gradient(135deg,#5BCEFA,#F5A9B8);color:#0d0f14;';
-      glpBtn.textContent='Learn About GLP-1 Coaching →';
-      var ctaDiv=document.querySelector('.results-cta');
-      if(ctaDiv) ctaDiv.appendChild(glpBtn);
-    }
-
-    const meals=[{name:'Breakfast',p:0.25,c:0.25,f:0.25,cal:0.25},{name:'Lunch',p:0.30,c:0.30,f:0.30,cal:0.30},{name:'Dinner',p:0.35,c:0.35,f:0.30,cal:0.30},{name:'Snack',p:0.10,c:0.10,f:0.15,cal:0.15}];
-    document.getElementById('meal-table-body').innerHTML=meals.map(m=>`<tr><td>${m.name}</td><td>${Math.round(protein*m.p)}g</td><td>${Math.round(carbs*m.c)}g</td><td>${Math.round(fats*m.f)}g</td><td>${Math.round(targetCals*m.cal)}</td></tr>`).join('');
-
-    document.getElementById('step-5').style.display='none';
-    document.getElementById('results-panel').classList.add('active');
-    document.querySelector('.progress-header').style.display='none';
-    document.getElementById('calculator').scrollIntoView({behavior:'smooth',block:'start'});
-  }
-
 const GHL_WEBHOOK_URL = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4nx5JQk1dIv/webhook-trigger/4225bc15-d69d-4b04-9fd6-b95490bd3ba5';
-  const GHL_NEXT_STEP_URL = '';
-
 
   window.scrollToCalc = function(e) { e.preventDefault(); document.getElementById('calculator').scrollIntoView({behavior:'smooth',block:'start'}); }
 
@@ -1206,6 +903,30 @@ const GHL_WEBHOOK_URL = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4nx
     document.getElementById('results-panel').classList.add('active');
     document.querySelector('.progress-header').style.display='none';
     document.getElementById('calculator').scrollIntoView({behavior:'smooth',block:'start'});
+
+    // Fire GHL webhook
+    fetch(GHL_WEBHOOK_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        first_name: document.getElementById('fname').value,
+        email: email,
+        phone: document.getElementById('phone').value,
+        goal: goal,
+        activity_level: document.getElementById('activity').selectedOptions[0].text,
+        on_hrt: hrtOn,
+        hrt_duration: hrtMonths,
+        gender_identity: identity,
+        birth_sex: gaabRaw,
+        biggest_challenge: document.querySelector('input[name="challenge"]:checked')?.value || '',
+        glp1_interest: glp1,
+        skool_interest: document.querySelector('input[name="community"]:checked')?.value || '',
+        calories: targetCals,
+        protein: protein,
+        carbs: carbs,
+        fats: fats
+      })
+    }).catch(function() {});
   }
 
   // GHL-safe event delegation — handles all button clicks
