@@ -569,6 +569,10 @@ Uses event delegation — no onclick= attributes
 
   <!-- RESULTS -->
   <div class="results-panel" id="results-panel">
+    <div id="inbox-notice" style="display:none;background:rgba(91,206,250,0.06);border:1px solid rgba(91,206,250,0.15);border-radius:10px;padding:12px 16px;margin-bottom:0;text-align:center;font-size:0.78rem;color:var(--muted);line-height:1.55">
+      <span style="margin-right:4px">&#9993;&#65039;</span> Check your inbox &mdash; we just sent your macro guide. If you don't see it in a minute, check your spam or promotions folder.
+    </div>
+
     <div class="results-hero">
       <h2 id="r-greeting" style="font-family:var(--font-display);font-size:1.7rem;color:var(--trans-white);margin-bottom:16px">Here's your plan.</h2>
       <p class="calorie-label">YOUR DAILY CALORIE TARGET</p>
@@ -1162,6 +1166,8 @@ const GHL_WEBHOOK_URL = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4nx
 
     document.getElementById('step-5').style.display='none';
     document.getElementById('results-panel').classList.add('active');
+    var inboxNotice=document.getElementById('inbox-notice');
+    if (inboxNotice) inboxNotice.style.display='block';
     document.querySelector('.progress-header').style.display='none';
     document.getElementById('calculator').scrollIntoView({behavior:'smooth',block:'start'});
     console.log('results panel shown');
@@ -1176,13 +1182,14 @@ const GHL_WEBHOOK_URL = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4nx
 
     // Build GHL tags
     var tags = ['macro-calculator'];
+    if (goal) tags.push(goal.toLowerCase().replace(/ /g,'-'));
     if (glp1==='Interested'||glp1==='No') tags.push('glp1-interested');
     if (hrtOn) tags.push('on-hrt');
     if (identity==='Male') tags.push('trans-man');
     else if (identity==='Female') tags.push('trans-woman');
     else if (identity==='Non-binary') tags.push('non-binary');
     var challenge=(document.querySelector('input[name="challenge"]:checked')||{}).value||'';
-    if (challenge) tags.push(challenge.toLowerCase().replace(/ /g,'-'));
+    if (challenge) tags.push(challenge.toLowerCase().replace(/[^a-z0-9 ]/g,'').replace(/ /g,'-'));
 
     // Fire GHL webhook
     fetch(GHL_WEBHOOK_URL, {
