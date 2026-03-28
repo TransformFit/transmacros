@@ -1248,6 +1248,15 @@ const GHL_WEBHOOK_URL = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4nx
         tags: tags
       })
     }).catch(function() {});
+    // Delayed second call to apply tags after contact is created
+    var _email = email, _tags = tags;
+    setTimeout(function() {
+      fetch(GHL_WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: _email, tags: _tags })
+      }).catch(function() {});
+    }, 2000);
     console.log('webhook fired');
 
     } catch(err) {
