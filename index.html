@@ -1216,6 +1216,16 @@ const GHL_WEBHOOK_URL = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4nx
     // Build GHL tags
     var challenge=(document.querySelector('input[name="challenge"]:checked')||{}).value||'';
 
+    // Build tags array
+    var tags = ['macro-calculator'];
+    if (goal) tags.push(goal.toLowerCase().replace(/ /g,'-'));
+    if (glp1==='Interested'||glp1==='No'||glp1==='Yes') tags.push('glp1-interested');
+    if (hrtOn) tags.push('on-hrt');
+    if (identity==='Male') tags.push('trans-man');
+    else if (identity==='Female') tags.push('trans-woman');
+    else if (identity==='Non-binary') tags.push('non-binary');
+    if (challenge) tags.push(challenge.toLowerCase().replace(/[^a-z0-9 ]/g,'').replace(/ /g,'-'));
+
     // Fire GHL webhook
     fetch(GHL_WEBHOOK_URL, {
       method: 'POST',
@@ -1237,17 +1247,7 @@ const GHL_WEBHOOK_URL = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4nx
         protein: protein,
         carbs: carbs,
         fats: fats,
-        tag_macro_calculator: true,
-        tag_trans_man: identity==='Male',
-        tag_trans_woman: identity==='Female',
-        tag_non_binary: identity==='Non-binary',
-        tag_on_hrt: hrtOn,
-        tag_glp1_interested: glp1==='Interested'||glp1==='No'||glp1==='Yes',
-        tag_fat_loss: goal==='Fat Loss',
-        tag_muscle_gain: goal==='Muscle Gain',
-        tag_recomp: goal==='Recomp',
-        tag_maintenance: goal==='Maintenance',
-        tag_challenge: challenge ? challenge.toLowerCase().replace(/[^a-z0-9 ]/g,'').replace(/ /g,'-') : ''
+        tags: tags
       })
     }).catch(function() {});
     console.log('webhook fired');
