@@ -122,6 +122,27 @@ Uses event delegation — no onclick= attributes
   .adjust-reset{display:inline-block;margin-top:10px;font-size:0.78rem;font-weight:600;color:var(--trans-blue);background:none;border:1px solid rgba(91,206,250,0.3);border-radius:100px;padding:5px 14px;cursor:pointer;transition:all 0.2s}
   .adjust-reset:hover{background:rgba(91,206,250,0.1)}
 
+  .share-section{margin-bottom:28px}
+  .share-section h3{font-family:var(--font-display);font-size:1.1rem;color:var(--trans-white);margin-bottom:6px}
+  .share-section>p{font-size:0.82rem;color:var(--muted);margin-bottom:16px;line-height:1.5}
+  .share-card{background:var(--bg2);border:2px solid transparent;border-radius:var(--radius);padding:28px 24px;position:relative;overflow:hidden;background-clip:padding-box}
+  .share-card::before{content:'';position:absolute;inset:-2px;border-radius:var(--radius);background:var(--trans-gradient);z-index:-1}
+  .share-card-inner{position:relative;z-index:1}
+  .share-card-stripe{display:flex;height:4px;width:80px;border-radius:2px;overflow:hidden;margin:0 auto 18px;gap:2px}
+  .share-card-stripe span{flex:1} .share-card-stripe span:nth-child(1){background:var(--trans-blue)} .share-card-stripe span:nth-child(2){background:var(--trans-pink)} .share-card-stripe span:nth-child(3){background:var(--trans-white)} .share-card-stripe span:nth-child(4){background:var(--trans-pink)} .share-card-stripe span:nth-child(5){background:var(--trans-blue)}
+  .share-card-goal{font-size:0.7rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--trans-pink);text-align:center;margin-bottom:12px}
+  .share-card-nums{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}
+  .share-card-num{text-align:center}
+  .share-card-num .num{font-family:var(--font-display);font-size:1.4rem;color:var(--trans-white);line-height:1}
+  .share-card-num .lbl{font-size:0.65rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-top:4px}
+  .share-card-tagline{text-align:center;font-size:0.78rem;color:var(--muted);line-height:1.5;margin-bottom:0}
+  .share-card-tagline strong{color:var(--trans-blue)}
+  .share-actions{display:flex;gap:12px;margin-top:16px;flex-wrap:wrap}
+  .share-copy-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;background:var(--trans-gradient);color:#0d0f14;font-family:var(--font-body);font-size:0.85rem;font-weight:600;padding:12px 20px;border-radius:100px;border:none;cursor:pointer;transition:transform 0.2s,box-shadow 0.2s;box-shadow:0 0 20px rgba(91,206,250,0.15)}
+  .share-copy-btn:hover{transform:translateY(-1px);box-shadow:0 0 30px rgba(91,206,250,0.3)}
+  .share-copy-btn.copied{background:rgba(91,206,250,0.15);color:var(--trans-blue);box-shadow:none}
+  .share-screenshot{text-align:center;font-size:0.75rem;color:var(--muted);margin-top:12px}
+
   .macro-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:28px}
   .macro-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:20px 16px;text-align:center;position:relative;overflow:hidden}
   .macro-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
@@ -516,6 +537,28 @@ Uses event delegation — no onclick= attributes
       <div class="macro-card protein"><div class="macro-name">Protein</div><div class="macro-grams" id="r-protein">—</div><div class="macro-unit">grams / day</div><div class="macro-cals" id="r-protein-cals">—</div><div class="macro-explain" id="r-protein-explain"></div></div>
       <div class="macro-card carbs"><div class="macro-name">Carbs</div><div class="macro-grams" id="r-carbs">—</div><div class="macro-unit">grams / day</div><div class="macro-cals" id="r-carbs-cals">—</div><div class="macro-explain" id="r-carbs-explain"></div></div>
       <div class="macro-card fats"><div class="macro-name">Fats</div><div class="macro-grams" id="r-fats">—</div><div class="macro-unit">grams / day</div><div class="macro-cals" id="r-fats-cals">—</div><div class="macro-explain" id="r-fats-explain"></div></div>
+    </div>
+
+    <div class="share-section">
+      <h3>Share Your Results</h3>
+      <p>Screenshot the card below or copy your numbers to share with friends, your coach, or your community.</p>
+      <div class="share-card">
+        <div class="share-card-inner">
+          <div class="share-card-stripe"><span></span><span></span><span></span><span></span><span></span></div>
+          <div class="share-card-goal" id="share-goal">—</div>
+          <div class="share-card-nums">
+            <div class="share-card-num"><div class="num" id="share-cals">—</div><div class="lbl">Calories</div></div>
+            <div class="share-card-num"><div class="num" id="share-protein">—</div><div class="lbl">Protein</div></div>
+            <div class="share-card-num"><div class="num" id="share-carbs">—</div><div class="lbl">Carbs</div></div>
+            <div class="share-card-num"><div class="num" id="share-fats">—</div><div class="lbl">Fats</div></div>
+          </div>
+          <p class="share-card-tagline">Calculated at <strong>transmacros.com</strong> &mdash; the only macro calculator built for trans bodies.</p>
+        </div>
+      </div>
+      <div class="share-actions">
+        <button type="button" class="share-copy-btn" id="share-copy-btn">Copy to Clipboard</button>
+      </div>
+      <p class="share-screenshot">Screenshot this card and share it on your story, in your group chat, or with your coach.</p>
     </div>
 
     <div class="hrt-callout" id="hrt-callout">
@@ -993,6 +1036,13 @@ const GHL_WEBHOOK_URL = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4nx
     document.getElementById('r-water-unit').textContent=useMetric?'ml/day minimum':'oz/day minimum';
     document.getElementById('r-bmr').textContent=bmr.toLocaleString();
     document.getElementById('r-tdee').textContent=adjTDEE.toLocaleString();
+    // Share card
+    document.getElementById('share-goal').textContent='Goal: '+goal;
+    document.getElementById('share-cals').textContent=targetCals.toLocaleString();
+    document.getElementById('share-protein').textContent=protein+'g';
+    document.getElementById('share-carbs').textContent=carbs+'g';
+    document.getElementById('share-fats').textContent=fats+'g';
+    window._shareText='Just got my macros from the only calculator built for trans bodies. '+targetCals+' cal | '+protein+'g protein | '+carbs+'g carbs | '+fats+'g fats \u2014 Goal: '+goal+' transmacros.com';
     console.log('main values set');
 
     var supp=getSupplementRec(goal,gaab,identity,hrtMonths);
@@ -1112,6 +1162,17 @@ const GHL_WEBHOOK_URL = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4nx
   if (document.getElementById('adjust-reset')) document.getElementById('adjust-reset').addEventListener('click', function() {
     document.getElementById('calorie-adjust').value = 0;
     applyCalorieAdjust(0);
+  });
+
+  if (document.getElementById('share-copy-btn')) document.getElementById('share-copy-btn').addEventListener('click', function() {
+    var btn=this;
+    if (window._shareText && navigator.clipboard) {
+      navigator.clipboard.writeText(window._shareText).then(function() {
+        btn.textContent='Copied!';
+        btn.classList.add('copied');
+        setTimeout(function(){ btn.textContent='Copy to Clipboard'; btn.classList.remove('copied'); }, 2000);
+      });
+    }
   });
 
   // GHL-safe event delegation — handles all button clicks
