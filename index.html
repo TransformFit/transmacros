@@ -130,6 +130,7 @@ Uses event delegation — no onclick= attributes
   .macro-grams{font-family:var(--font-display);font-size:2.2rem;color:var(--trans-white);line-height:1}
   .macro-unit{font-size:0.75rem;color:var(--muted);margin-top:2px}
   .macro-cals{font-size:0.8rem;color:var(--muted);margin-top:8px}
+  .macro-explain{font-size:0.72rem;color:var(--muted);line-height:1.5;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);text-align:left}
   .insight-box{background:rgba(245,169,184,0.06);border:1px solid rgba(245,169,184,0.2);border-radius:var(--radius);padding:18px 20px;margin-bottom:24px}
   .insight-box h4{font-size:0.85rem;font-weight:600;color:var(--trans-pink);margin-bottom:8px}
   .insight-box p{font-size:0.88rem;color:var(--muted);line-height:1.65}
@@ -499,6 +500,7 @@ Uses event delegation — no onclick= attributes
       <div class="calorie-big" id="r-calories">—</div>
       <p class="calorie-label">CALORIES / DAY</p>
       <p style="font-size:0.82rem;color:var(--muted);margin-top:10px" id="r-goal-label">—</p>
+      <p style="font-size:0.85rem;color:var(--trans-blue);margin-top:14px;line-height:1.5;max-width:420px;margin-left:auto;margin-right:auto" id="r-timeline">—</p>
     </div>
 
     <div class="adjust-slider-wrap">
@@ -511,9 +513,9 @@ Uses event delegation — no onclick= attributes
     </div>
 
     <div class="macro-grid">
-      <div class="macro-card protein"><div class="macro-name">Protein</div><div class="macro-grams" id="r-protein">—</div><div class="macro-unit">grams / day</div><div class="macro-cals" id="r-protein-cals">—</div></div>
-      <div class="macro-card carbs"><div class="macro-name">Carbs</div><div class="macro-grams" id="r-carbs">—</div><div class="macro-unit">grams / day</div><div class="macro-cals" id="r-carbs-cals">—</div></div>
-      <div class="macro-card fats"><div class="macro-name">Fats</div><div class="macro-grams" id="r-fats">—</div><div class="macro-unit">grams / day</div><div class="macro-cals" id="r-fats-cals">—</div></div>
+      <div class="macro-card protein"><div class="macro-name">Protein</div><div class="macro-grams" id="r-protein">—</div><div class="macro-unit">grams / day</div><div class="macro-cals" id="r-protein-cals">—</div><div class="macro-explain" id="r-protein-explain"></div></div>
+      <div class="macro-card carbs"><div class="macro-name">Carbs</div><div class="macro-grams" id="r-carbs">—</div><div class="macro-unit">grams / day</div><div class="macro-cals" id="r-carbs-cals">—</div><div class="macro-explain" id="r-carbs-explain"></div></div>
+      <div class="macro-card fats"><div class="macro-name">Fats</div><div class="macro-grams" id="r-fats">—</div><div class="macro-unit">grams / day</div><div class="macro-cals" id="r-fats-cals">—</div><div class="macro-explain" id="r-fats-explain"></div></div>
     </div>
 
     <div class="hrt-callout" id="hrt-callout">
@@ -950,12 +952,40 @@ const GHL_WEBHOOK_URL = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4nx
 
     document.getElementById('r-calories').textContent=targetCals.toLocaleString();
     document.getElementById('r-goal-label').textContent='Goal: '+goal+' \u00b7 HRT Adjustment: '+(hrtPctRaw>=0?'+':'')+hrtPctRaw+'%';
+
+    // Goal timeline
+    var timelineText='';
+    if (goal==='Fat Loss') timelineText='At this deficit, expect to lose about 0.5\u20131 lb per week \u2014 slow enough to keep muscle, fast enough to see real progress.';
+    else if (goal==='Muscle Gain') timelineText='At this surplus, expect to gain about 0.5\u20131 lb per week. Give it 8\u201312 weeks to see noticeable changes in the mirror.';
+    else if (goal==='Recomp') timelineText='Recomp is a slower game \u2014 the scale might not move much, but expect visible changes in 6\u201312 weeks as fat drops and muscle fills in.';
+    else timelineText='At maintenance, your weight should stay steady. Use this as your baseline and adjust if your goals change.';
+    document.getElementById('r-timeline').textContent=timelineText;
+
     document.getElementById('r-protein').textContent=protein;
     document.getElementById('r-protein-cals').textContent=(protein*4)+' cal';
     document.getElementById('r-carbs').textContent=carbs;
     document.getElementById('r-carbs-cals').textContent=(carbs*4)+' cal';
     document.getElementById('r-fats').textContent=fats;
     document.getElementById('r-fats-cals').textContent=(fats*9)+' cal';
+
+    // Macro explanations
+    var proteinExplain='';
+    if (goal==='Fat Loss') proteinExplain='Set high at '+proteinPerLb.toFixed(1)+'g/lb to protect your muscle while you cut.';
+    else if (goal==='Muscle Gain') proteinExplain='Set at '+proteinPerLb.toFixed(1)+'g/lb to fuel new muscle growth.';
+    else proteinExplain='Set at '+proteinPerLb.toFixed(1)+'g/lb to maintain your current muscle mass.';
+    if (hrtOn && gaab==='Female' && identity==='Male' && hrtMonths>12) proteinExplain+=' Bumped up because T is accelerating your muscle synthesis.';
+    else if (hrtOn && gaab==='Male' && identity==='Female') proteinExplain+=' Keeping this steady helps preserve lean mass as estrogen shifts your composition.';
+    document.getElementById('r-protein-explain').textContent=proteinExplain;
+
+    var carbsExplain='';
+    if (goal==='Fat Loss') carbsExplain='Carbs are the flexible macro in a deficit \u2014 enough to fuel your workouts, low enough to hit your calorie target.';
+    else if (goal==='Muscle Gain') carbsExplain='Carbs are your main training fuel. Higher carbs mean better performance and faster recovery between sessions.';
+    else if (goal==='Recomp') carbsExplain='Moderate carbs keep your energy up for training while staying in a slight deficit for fat loss.';
+    else carbsExplain='Carbs fill the gap after protein and fats are set \u2014 your main energy source for daily life and training.';
+    document.getElementById('r-carbs-explain').textContent=carbsExplain;
+
+    document.getElementById('r-fats-explain').textContent='Fats are locked at 25% of your calories \u2014 the minimum your body needs for hormone production, brain function, and absorbing vitamins.';
+
     document.getElementById('r-train-cals').textContent=trainCals.toLocaleString();
     document.getElementById('r-rest-cals').textContent=restCals.toLocaleString();
     document.getElementById('r-fiber').textContent=fiber+'g';
