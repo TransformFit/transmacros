@@ -134,6 +134,19 @@ Uses event delegation — no onclick= attributes
   .insight-box h4{font-size:0.85rem;font-weight:600;color:var(--trans-pink);margin-bottom:8px}
   .insight-box p{font-size:0.88rem;color:var(--muted);line-height:1.65}
 
+  .hrt-callout{border-radius:var(--radius);padding:22px 24px;margin-bottom:28px;position:relative;overflow:hidden}
+  .hrt-callout::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--trans-gradient)}
+  .hrt-callout.on-hrt{background:linear-gradient(135deg,rgba(91,206,250,0.08),rgba(245,169,184,0.08));border:1px solid rgba(91,206,250,0.25)}
+  .hrt-callout.no-hrt{background:rgba(255,255,255,0.03);border:1px solid var(--border)}
+  .hrt-callout-header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+  .hrt-callout-badge{font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:3px 10px;border-radius:100px}
+  .hrt-callout.on-hrt .hrt-callout-badge{background:rgba(91,206,250,0.15);color:var(--trans-blue);border:1px solid rgba(91,206,250,0.3)}
+  .hrt-callout.no-hrt .hrt-callout-badge{background:rgba(255,255,255,0.05);color:var(--muted);border:1px solid var(--border)}
+  .hrt-callout h4{font-family:var(--font-display);font-size:1.05rem;color:var(--trans-white);margin:0}
+  .hrt-callout-body{font-size:0.88rem;color:var(--muted);line-height:1.7}
+  .hrt-callout-body strong{color:var(--trans-white)}
+  .hrt-callout-pct{font-family:var(--font-display);font-size:1.8rem;line-height:1;background:var(--trans-gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin:10px 0 8px}
+
   .cycling-section{margin-bottom:28px}
   .cycling-section h3{font-family:var(--font-display);font-size:1.1rem;color:var(--trans-white);margin-bottom:6px}
   .cycling-section p{font-size:0.82rem;color:var(--muted);margin-bottom:16px;line-height:1.5}
@@ -481,6 +494,7 @@ Uses event delegation — no onclick= attributes
   <!-- RESULTS -->
   <div class="results-panel" id="results-panel">
     <div class="results-hero">
+      <h2 id="r-greeting" style="font-family:var(--font-display);font-size:1.7rem;color:var(--trans-white);margin-bottom:16px">Here's your plan.</h2>
       <p class="calorie-label">YOUR DAILY CALORIE TARGET</p>
       <div class="calorie-big" id="r-calories">—</div>
       <p class="calorie-label">CALORIES / DAY</p>
@@ -502,9 +516,13 @@ Uses event delegation — no onclick= attributes
       <div class="macro-card fats"><div class="macro-name">Fats</div><div class="macro-grams" id="r-fats">—</div><div class="macro-unit">grams / day</div><div class="macro-cals" id="r-fats-cals">—</div></div>
     </div>
 
-    <div class="insight-box">
-      <h4>🏳️‍⚧️ Your Personalized Adjustment</h4>
-      <p id="hrt-insight-text">—</p>
+    <div class="hrt-callout" id="hrt-callout">
+      <div class="hrt-callout-header">
+        <span class="hrt-callout-badge" id="hrt-callout-badge">—</span>
+        <h4 id="hrt-callout-title">—</h4>
+      </div>
+      <div id="hrt-callout-pct" class="hrt-callout-pct" style="display:none"></div>
+      <div class="hrt-callout-body" id="hrt-callout-body">—</div>
     </div>
 
     <div class="cycling-section">
@@ -860,31 +878,55 @@ const GHL_WEBHOOK_URL = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4nx
     const trainCals=Math.round(targetCals*1.1);
     const restCals=Math.round(targetCals*0.9);
 
-    let insightText='';
-    if (gaabRaw==='Intersex') {
-      const henv=document.querySelector('input[name="horm-env"]:checked')?.value||'Mixed';
-      insightText=`Your BMR is calculated from your hormonal environment (${henv.toLowerCase()}) rather than a binary birth sex assumption.${hrtOn?` With ${hrtMonths} months on HRT, a ${Math.round((hrtFactor-1)*100)}% metabolic adjustment has been applied.`:' No HRT adjustment applied.'}`;
-    } else if (!hrtOn) {
-      insightText='No HRT adjustment applied. Your macros are based on your current hormonal baseline.';
-    } else if (gaab==='Female'&&identity==='Male') {
-      const pct=Math.round((hrtFactor-1)*100);
-      insightText=`After ${hrtMonths} months on T, your metabolic rate has increased by ~${pct}%. Protein target is elevated to ${proteinPerLb.toFixed(1)}g/lb to support muscle synthesis. Reassess at your 6, 12, and 24 month marks.`;
-    } else if (gaab==='Male'&&identity==='Female') {
-      const pct=Math.round((1-hrtFactor)*100);
-      insightText=`After ${hrtMonths} months on HRT, your metabolic rate has decreased by ~${pct}%. Targets are adjusted accordingly. Don't under-eat — your body needs fuel to transition.`;
-    } else if (identity==='Non-binary') {
-      insightText=`A ${Math.round((hrtFactor-1)*100)}% metabolic adjustment has been applied based on your hormonal environment.`;
+    // Personalized greeting
+    const fname=document.getElementById('fname').value.trim();
+    document.getElementById('r-greeting').textContent=fname?`Here's your plan, ${fname}.`:`Here's your plan.`;
+
+    // HRT callout
+    const callout=document.getElementById('hrt-callout');
+    const calloutBadge=document.getElementById('hrt-callout-badge');
+    const calloutTitle=document.getElementById('hrt-callout-title');
+    const calloutPct=document.getElementById('hrt-callout-pct');
+    const calloutBody=document.getElementById('hrt-callout-body');
+    const hrtPctRaw=Math.round((hrtFactor-1)*100);
+
+    if (!hrtOn && gaabRaw!=='Intersex') {
+      callout.className='hrt-callout no-hrt';
+      calloutBadge.textContent='No HRT';
+      calloutTitle.textContent='Standard metabolic baseline';
+      calloutPct.style.display='none';
+      calloutBody.innerHTML='Your macros are calculated using your birth sex baseline with <strong>no hormonal adjustment</strong>. If you start HRT in the future, come back and re-run the calculator — your targets will shift as your metabolism changes.';
+    } else {
+      callout.className='hrt-callout on-hrt';
+      calloutBadge.textContent=gaabRaw==='Intersex'?'Intersex-Adjusted':'HRT-Adjusted';
+      calloutPct.style.display='block';
+      calloutPct.textContent=(hrtPctRaw>=0?'+':'')+hrtPctRaw+'% TDEE';
+
+      if (gaabRaw==='Intersex') {
+        const henv=document.querySelector('input[name="horm-env"]:checked')?.value||'Mixed';
+        calloutTitle.textContent='Calculated from your hormonal environment';
+        calloutBody.innerHTML=`Your BMR uses your <strong>${henv.toLowerCase()} hormonal profile</strong> instead of a binary birth sex assumption — giving you a more accurate starting point.`+(hrtOn?` With <strong>${hrtMonths} months on HRT</strong>, an additional <strong>${hrtPctRaw>=0?'+':''}${hrtPctRaw}%</strong> metabolic adjustment is applied.`:' No additional HRT adjustment applied.');
+      } else if (gaab==='Female'&&identity==='Male') {
+        calloutTitle.textContent='Testosterone is increasing your metabolism';
+        calloutBody.innerHTML=`After <strong>${hrtMonths} months on T</strong>, your metabolic rate has increased by <strong>~${hrtPctRaw}%</strong>. Testosterone drives higher muscle protein synthesis and a faster resting metabolism. Your protein target is set to <strong>${proteinPerLb.toFixed(1)}g/lb</strong> to fuel that growth. Reassess at your 6, 12, and 24 month marks as your body continues to change.`;
+      } else if (gaab==='Male'&&identity==='Female') {
+        const pctDown=Math.round((1-hrtFactor)*100);
+        calloutTitle.textContent='Estrogen is shifting your metabolism';
+        calloutBody.innerHTML=`After <strong>${hrtMonths} months on HRT</strong>, your metabolic rate has decreased by <strong>~${pctDown}%</strong>. Estrogen and T-blockers gradually reduce resting energy expenditure and shift body composition toward more fat and less muscle. <strong>Don't under-eat</strong> — your body needs adequate fuel to transition safely.`;
+      } else if (identity==='Non-binary') {
+        calloutTitle.textContent='Partial hormonal adjustment applied';
+        calloutBody.innerHTML=`A <strong>${hrtPctRaw>=0?'+':''}${hrtPctRaw}%</strong> metabolic adjustment has been applied based on your hormonal environment, reflecting partial or low-dose HRT effects on your resting metabolism.`;
+      }
     }
 
     document.getElementById('r-calories').textContent=targetCals.toLocaleString();
-    document.getElementById('r-goal-label').textContent=`Goal: ${goal} · HRT Adjustment: ${Math.round((hrtFactor-1)*100)}%`;
+    document.getElementById('r-goal-label').textContent=`Goal: ${goal} · HRT Adjustment: ${hrtPctRaw>=0?'+':''}${hrtPctRaw}%`;
     document.getElementById('r-protein').textContent=protein;
     document.getElementById('r-protein-cals').textContent=(protein*4)+' cal';
     document.getElementById('r-carbs').textContent=carbs;
     document.getElementById('r-carbs-cals').textContent=(carbs*4)+' cal';
     document.getElementById('r-fats').textContent=fats;
     document.getElementById('r-fats-cals').textContent=(fats*9)+' cal';
-    document.getElementById('hrt-insight-text').textContent=insightText;
     document.getElementById('r-train-cals').textContent=trainCals.toLocaleString();
     document.getElementById('r-rest-cals').textContent=restCals.toLocaleString();
     document.getElementById('r-fiber').textContent=fiber+'g';
