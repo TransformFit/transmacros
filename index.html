@@ -110,6 +110,18 @@ Uses event delegation — no onclick= attributes
   .results-hero h2{font-family:var(--font-display);font-size:1.7rem;color:var(--trans-white);margin-bottom:8px}
   .calorie-big{font-family:var(--font-display);font-size:4.5rem;line-height:1;background:var(--trans-gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin:16px 0 4px}
   .calorie-label{font-size:0.85rem;color:var(--muted);letter-spacing:0.08em}
+  .adjust-slider-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:20px 24px;margin-bottom:32px;text-align:center}
+  .adjust-slider-wrap h4{font-size:0.8rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+  .adjust-baseline{font-size:0.78rem;color:var(--muted);margin-bottom:14px}
+  .adjust-value{font-family:var(--font-display);font-size:1.4rem;color:var(--trans-blue);margin-bottom:12px}
+  .adjust-value.negative{color:var(--trans-pink)}
+  .adjust-slider{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:3px;background:var(--bg3);outline:none;cursor:pointer}
+  .adjust-slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:22px;height:22px;border-radius:50%;background:var(--trans-gradient);cursor:pointer;box-shadow:0 0 10px rgba(91,206,250,0.3)}
+  .adjust-slider::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:var(--trans-gradient);cursor:pointer;border:none;box-shadow:0 0 10px rgba(91,206,250,0.3)}
+  .adjust-range-labels{display:flex;justify-content:space-between;font-size:0.7rem;color:var(--muted);margin-top:6px}
+  .adjust-reset{display:inline-block;margin-top:10px;font-size:0.78rem;font-weight:600;color:var(--trans-blue);background:none;border:1px solid rgba(91,206,250,0.3);border-radius:100px;padding:5px 14px;cursor:pointer;transition:all 0.2s}
+  .adjust-reset:hover{background:rgba(91,206,250,0.1)}
+
   .macro-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:28px}
   .macro-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:20px 16px;text-align:center;position:relative;overflow:hidden}
   .macro-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
@@ -473,6 +485,15 @@ Uses event delegation — no onclick= attributes
       <div class="calorie-big" id="r-calories">—</div>
       <p class="calorie-label">CALORIES / DAY</p>
       <p style="font-size:0.82rem;color:var(--muted);margin-top:10px" id="r-goal-label">—</p>
+    </div>
+
+    <div class="adjust-slider-wrap">
+      <h4>Fine-tune Your Target</h4>
+      <p class="adjust-baseline">Calculated baseline: <strong id="r-baseline-cals">—</strong> cal/day</p>
+      <div class="adjust-value" id="adjust-label">+0 cal</div>
+      <input type="range" class="adjust-slider" id="calorie-adjust" min="-500" max="500" step="50" value="0">
+      <div class="adjust-range-labels"><span>-500</span><span>0</span><span>+500</span></div>
+      <button class="adjust-reset" id="adjust-reset">Reset to baseline</button>
     </div>
 
     <div class="macro-grid">
@@ -904,6 +925,13 @@ const GHL_WEBHOOK_URL = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4nx
     document.querySelector('.progress-header').style.display='none';
     document.getElementById('calculator').scrollIntoView({behavior:'smooth',block:'start'});
 
+    // Store baseline values for the adjustment slider
+    window._baseline = { targetCals: targetCals, protein: protein, weight_lbs: weight_lbs };
+    document.getElementById('r-baseline-cals').textContent = targetCals.toLocaleString();
+    document.getElementById('calorie-adjust').value = 0;
+    document.getElementById('adjust-label').textContent = '+0 cal';
+    document.getElementById('adjust-label').className = 'adjust-value';
+
     // Fire GHL webhook
     fetch(GHL_WEBHOOK_URL, {
       method: 'POST',
@@ -928,6 +956,46 @@ const GHL_WEBHOOK_URL = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4nx
       })
     }).catch(function() {});
   }
+
+  // Calorie adjustment slider
+  function applyCalorieAdjust(offset) {
+    var b = window._baseline;
+    if (!b) return;
+    var adj = b.targetCals + offset;
+    var label = document.getElementById('adjust-label');
+    label.textContent = (offset >= 0 ? '+' : '') + offset + ' cal';
+    label.className = 'adjust-value' + (offset < 0 ? ' negative' : '');
+
+    document.getElementById('r-calories').textContent = adj.toLocaleString();
+
+    // Protein stays fixed (tied to body weight), recalc fats & carbs from new total
+    var fats = Math.round((adj * 0.25) / 9);
+    var carbs = Math.max(Math.round((adj - (b.protein * 4) - (fats * 9)) / 4), 0);
+
+    document.getElementById('r-protein').textContent = b.protein;
+    document.getElementById('r-protein-cals').textContent = (b.protein * 4) + ' cal';
+    document.getElementById('r-carbs').textContent = carbs;
+    document.getElementById('r-carbs-cals').textContent = (carbs * 4) + ' cal';
+    document.getElementById('r-fats').textContent = fats;
+    document.getElementById('r-fats-cals').textContent = (fats * 9) + ' cal';
+
+    document.getElementById('r-train-cals').textContent = Math.round(adj * 1.1).toLocaleString();
+    document.getElementById('r-rest-cals').textContent = Math.round(adj * 0.9).toLocaleString();
+
+    var meals = [{name:'Breakfast',p:0.25,c:0.25,f:0.25,cal:0.25},{name:'Lunch',p:0.30,c:0.30,f:0.30,cal:0.30},{name:'Dinner',p:0.35,c:0.35,f:0.30,cal:0.30},{name:'Snack',p:0.10,c:0.10,f:0.15,cal:0.15}];
+    document.getElementById('meal-table-body').innerHTML = meals.map(function(m) {
+      return '<tr><td>'+m.name+'</td><td>'+Math.round(b.protein*m.p)+'g</td><td>'+Math.round(carbs*m.c)+'g</td><td>'+Math.round(fats*m.f)+'g</td><td>'+Math.round(adj*m.cal)+'</td></tr>';
+    }).join('');
+  }
+
+  document.getElementById('calorie-adjust').addEventListener('input', function() {
+    applyCalorieAdjust(parseInt(this.value, 10));
+  });
+
+  document.getElementById('adjust-reset').addEventListener('click', function() {
+    document.getElementById('calorie-adjust').value = 0;
+    applyCalorieAdjust(0);
+  });
 
   // GHL-safe event delegation — handles all button clicks
   document.addEventListener('click', function(e) {
