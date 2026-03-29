@@ -615,6 +615,13 @@ Uses event delegation — no onclick= attributes
       <button type="button" class="adjust-reset" id="adjust-reset">Reset to baseline</button>
     </div>
 
+    <div class="adjust-slider-wrap" id="protein-slider-wrap">
+      <h4>Adjust Protein Target</h4>
+      <div class="adjust-value" id="protein-slider-label" style="color:var(--trans-blue)">—g/day</div>
+      <input type="range" class="adjust-slider" id="protein-adjust" min="0" max="300" step="1" value="150">
+      <div class="adjust-range-labels"><span>More carbs</span><span>More muscle protection</span></div>
+    </div>
+
     <div class="macro-grid">
       <div class="macro-card protein"><div class="macro-name">Protein</div><div class="macro-grams" id="r-protein">—</div><div class="macro-unit">grams / day</div><div class="macro-cals" id="r-protein-cals">—</div><div class="macro-explain" id="r-protein-explain"></div></div>
       <div class="macro-card carbs"><div class="macro-name">Carbs</div><div class="macro-grams" id="r-carbs">—</div><div class="macro-unit">grams / day</div><div class="macro-cals" id="r-carbs-cals">—</div><div class="macro-explain" id="r-carbs-explain"></div></div>
@@ -1206,12 +1213,23 @@ const GHL_WEBHOOK_URL = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4nx
     document.getElementById('calculator').scrollIntoView({behavior:'smooth',block:'start'});
     console.log('results panel shown');
 
-    // Store baseline values for the adjustment slider
-    window._baseline = { targetCals: targetCals, protein: protein, weight_lbs: weight_lbs };
+    // Store baseline values for both sliders
+    var proteinMin = Math.round((targetCals * 0.30) / 4);
+    var proteinMax = Math.round((targetCals * 0.45) / 4);
+    window._baseline = { targetCals: targetCals, protein: protein, weight_lbs: weight_lbs, proteinMin: proteinMin, proteinMax: proteinMax };
     document.getElementById('r-baseline-cals').textContent = targetCals.toLocaleString();
     document.getElementById('calorie-adjust').value = 0;
     document.getElementById('adjust-label').textContent = '+0 cal';
     document.getElementById('adjust-label').className = 'adjust-value';
+
+    // Init protein slider
+    var pSlider = document.getElementById('protein-adjust');
+    if (pSlider) {
+      pSlider.min = proteinMin;
+      pSlider.max = proteinMax;
+      pSlider.value = Math.max(proteinMin, Math.min(proteinMax, protein));
+      document.getElementById('protein-slider-label').textContent = pSlider.value + 'g/day';
+    }
     console.log('slider baseline set');
 
     // Build GHL tags
@@ -1259,23 +1277,46 @@ const GHL_WEBHOOK_URL = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4nx
     }
   }
 
-  // Calorie adjustment slider
-  function applyCalorieAdjust(offset) {
+  // Shared macro update — reads both sliders and updates everything
+  function updateMacroDisplay() {
     var b = window._baseline;
     if (!b) return;
-    var adj = b.targetCals + offset;
-    var label = document.getElementById('adjust-label');
-    label.textContent = (offset >= 0 ? '+' : '') + offset + ' cal';
-    label.className = 'adjust-value' + (offset < 0 ? ' negative' : '');
 
+    // Read calorie offset
+    var calSlider = document.getElementById('calorie-adjust');
+    var calOffset = calSlider ? parseInt(calSlider.value, 10) : 0;
+    var adj = b.targetCals + calOffset;
+
+    // Calorie label
+    var calLabel = document.getElementById('adjust-label');
+    calLabel.textContent = (calOffset >= 0 ? '+' : '') + calOffset + ' cal';
+    calLabel.className = 'adjust-value' + (calOffset < 0 ? ' negative' : '');
     document.getElementById('r-calories').textContent = adj.toLocaleString();
 
-    // Protein stays fixed (tied to body weight), recalc fats & carbs from new total
-    var fats = Math.round((adj * 0.25) / 9);
-    var carbs = Math.max(Math.round((adj - (b.protein * 4) - (fats * 9)) / 4), 0);
+    // Read protein slider
+    var pSlider = document.getElementById('protein-adjust');
+    var protein = pSlider ? parseInt(pSlider.value, 10) : b.protein;
 
-    document.getElementById('r-protein').textContent = b.protein;
-    document.getElementById('r-protein-cals').textContent = (b.protein * 4) + ' cal';
+    // Reclamp protein to new calorie total
+    var pMin = Math.round((adj * 0.30) / 4);
+    var pMax = Math.round((adj * 0.45) / 4);
+    if (pSlider) {
+      pSlider.min = pMin;
+      pSlider.max = pMax;
+      if (protein < pMin) { protein = pMin; pSlider.value = pMin; }
+      if (protein > pMax) { protein = pMax; pSlider.value = pMax; }
+    }
+    document.getElementById('protein-slider-label').textContent = protein + 'g/day';
+
+    // Store current protein so share card uses it
+    b.protein = protein;
+
+    // Recalc fats and carbs
+    var fats = Math.round((adj * 0.25) / 9);
+    var carbs = Math.max(Math.round((adj - (protein * 4) - (fats * 9)) / 4), 0);
+
+    document.getElementById('r-protein').textContent = protein;
+    document.getElementById('r-protein-cals').textContent = (protein * 4) + ' cal';
     document.getElementById('r-carbs').textContent = carbs;
     document.getElementById('r-carbs-cals').textContent = (carbs * 4) + ' cal';
     document.getElementById('r-fats').textContent = fats;
@@ -1286,17 +1327,23 @@ const GHL_WEBHOOK_URL = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4nx
 
     var meals = [{name:'Breakfast',p:0.25,c:0.25,f:0.25,cal:0.25},{name:'Lunch',p:0.30,c:0.30,f:0.30,cal:0.30},{name:'Dinner',p:0.35,c:0.35,f:0.30,cal:0.30},{name:'Snack',p:0.10,c:0.10,f:0.15,cal:0.15}];
     document.getElementById('meal-table-body').innerHTML = meals.map(function(m) {
-      return '<tr><td>'+m.name+'</td><td>'+Math.round(b.protein*m.p)+'g</td><td>'+Math.round(carbs*m.c)+'g</td><td>'+Math.round(fats*m.f)+'g</td><td>'+Math.round(adj*m.cal)+'</td></tr>';
+      return '<tr><td>'+m.name+'</td><td>'+Math.round(protein*m.p)+'g</td><td>'+Math.round(carbs*m.c)+'g</td><td>'+Math.round(fats*m.f)+'g</td><td>'+Math.round(adj*m.cal)+'</td></tr>';
     }).join('');
   }
 
-  if (document.getElementById('calorie-adjust')) document.getElementById('calorie-adjust').addEventListener('input', function() {
-    applyCalorieAdjust(parseInt(this.value, 10));
-  });
+  if (document.getElementById('calorie-adjust')) document.getElementById('calorie-adjust').addEventListener('input', updateMacroDisplay);
+
+  if (document.getElementById('protein-adjust')) document.getElementById('protein-adjust').addEventListener('input', updateMacroDisplay);
 
   if (document.getElementById('adjust-reset')) document.getElementById('adjust-reset').addEventListener('click', function() {
+    var b = window._baseline;
     document.getElementById('calorie-adjust').value = 0;
-    applyCalorieAdjust(0);
+    if (b) {
+      var pSlider = document.getElementById('protein-adjust');
+      var pDefault = Math.max(b.proteinMin, Math.min(b.proteinMax, Math.round(b.weight_lbs * 1.0)));
+      if (pSlider) pSlider.value = pDefault;
+    }
+    updateMacroDisplay();
   });
 
   function generateShareCard(asBlob, callback) {
