@@ -1253,7 +1253,7 @@ const GHL_WEBHOOK_URL_2 = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4
         phone: document.getElementById('phone').value,
         goal: goal,
         activity_level: document.getElementById('activity').selectedOptions[0].text,
-        on_hrt: hrtOn,
+        on_hrt: hrtOn ? 'true' : 'false',
         hrt_duration: hrtMonths,
         gender_identity: identity,
         birth_sex: gaabRaw,
