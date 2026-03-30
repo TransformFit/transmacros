@@ -569,11 +569,12 @@ Uses event delegation — no onclick= attributes
         <p>Enter your details to unlock your personalized plan, plus a free guide on training & nutrition for your body and HRT stage.</p>
         <div class="gate-fields">
           <label for="fname">First Name</label>
-          <input type="text" id="fname" placeholder="Your first name">
+          <input type="text" id="fname" placeholder="Your first name" required>
+          <div class="error-msg" id="fname-err">Please enter your first name.</div>
 
           <label for="email" style="margin-top:4px">Email Address</label>
           <input type="email" id="email" placeholder="your@email.com" required>
-          <div class="error-msg" id="email-err">Please enter a valid email address</div>
+          <div class="error-msg" id="email-err">Please enter your email.</div>
 
           <label style="margin-top:4px">Phone Number <span class="optional-tag">(optional)</span></label>
           <input type="tel" id="phone" placeholder="e.g. (317) 555-0100">
@@ -1020,16 +1021,13 @@ const GHL_WEBHOOK_GLP1 = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4n
     try {
     console.log('showResults fired');
 
+    var fname=document.getElementById('fname').value.trim();
     var email=document.getElementById('email').value.trim();
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      alert('Please enter your email to see your results');
-      document.getElementById('email').focus();
-      return;
-    }
+    var hasError=false;
+    if (!fname) { showErr('fname-err'); hasError=true; } else { hideErr('fname-err'); }
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showErr('email-err'); hasError=true; } else { hideErr('email-err'); }
+    if (hasError) return;
     console.log('email:', email);
-    if (!email||!email.includes('@')||!email.includes('.')) { showErr('email-err'); console.log('email validation failed'); return; }
-    hideErr('email-err');
-    console.log('email passed');
 
     var weightRaw=parseFloat(document.getElementById('weight').value);
     var heightRaw=parseFloat(document.getElementById('height').value);
