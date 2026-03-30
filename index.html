@@ -1227,8 +1227,8 @@ const GHL_WEBHOOK_GLP1 = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4n
     console.log('results panel shown');
 
     // Store baseline values for both sliders
-    var proteinMin = Math.round((targetCals * 0.30) / 4);
-    var proteinMax = Math.round((targetCals * 0.45) / 4);
+    var proteinMin = Math.min(protein, Math.round((targetCals * 0.30) / 4));
+    var proteinMax = Math.max(protein, Math.round((targetCals * 0.45) / 4));
     window._baseline = { targetCals: targetCals, protein: protein, weight_lbs: weight_lbs, proteinMin: proteinMin, proteinMax: proteinMax };
     document.getElementById('r-baseline-cals').textContent = targetCals.toLocaleString();
     document.getElementById('calorie-adjust').value = 0;
