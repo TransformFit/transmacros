@@ -579,7 +579,7 @@ Uses event delegation — no onclick= attributes
           <input type="tel" id="phone" placeholder="e.g. (317) 555-0100">
           <p class="privacy-note" style="text-align:left;margin-top:4px;margin-bottom:0">📱 We'll send you a text with your macro summary.</p>
 
-          <button type="button" class="btn-next" id="unlock-btn" data-calc-action="showResults" onclick="showResults()" style="margin-top:20px">Unlock My Results →</button>
+          <button type="button" class="btn-next" id="unlock-btn" data-calc-action="showResults" style="margin-top:20px">Unlock My Results →</button>
           <p class="privacy-note" style="margin-top:12px">🔒 Your info is private. No spam, ever. Unsubscribe anytime.</p>
         </div>
       </div>
@@ -1630,9 +1630,4 @@ const GHL_WEBHOOK_GLP1 = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4n
     else if (action === 'openEssentials') window.open('https://essentials.transformfitness.net','_blank');
   });
 
-  // Guaranteed fallback binding for Unlock My Results button
-  document.addEventListener('DOMContentLoaded', function() {
-    var unlockBtn = document.getElementById('unlock-btn');
-    if (unlockBtn) unlockBtn.addEventListener('click', showResults);
-  });
 </script>
