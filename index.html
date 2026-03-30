@@ -753,7 +753,7 @@ Uses event delegation — no onclick= attributes
       </div>
       <div class="feedback-form" id="feedback-form">
         <textarea class="feedback-textarea" id="feedback-text" placeholder="Tell us more (optional)"></textarea>
-        <button type="button" class="feedback-submit" id="feedback-submit">Submit Feedback</button>
+        <button type="button" class="feedback-submit" id="feedback-submit" onclick="window.open('https://link.apisystem.tech/widget/survey/CIBoctkwXSuGPvvWIlOg', '_blank')">Submit Feedback</button>
       </div>
       <p class="feedback-thanks" id="feedback-thanks">Thanks for your feedback!</p>
     </div>
@@ -811,7 +811,11 @@ Uses event delegation — no onclick= attributes
   const stepNames = ['Body Stats','Gender & Identity','Hormone Therapy','Activity & Goals','Quick Questions','Your Results'];
 
 const GHL_WEBHOOK_URL = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4nx5JQk1dIv/webhook-trigger/bda12e98-601d-4128-922b-55af2af145bd';
-const GHL_WEBHOOK_URL_2 = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4nx5JQk1dIv/webhook-trigger/d59a06e0-2ff9-472f-bcb2-a22096524a1e';
+const GHL_WEBHOOK_GENDER = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4nx5JQk1dIv/webhook-trigger/qmqScGb66JgUQipkTnhy';
+const GHL_WEBHOOK_HRT = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4nx5JQk1dIv/webhook-trigger/905fbe30-de91-49c2-8495-bf4874699932';
+const GHL_WEBHOOK_GOAL = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4nx5JQk1dIv/webhook-trigger/351a625c-0788-4ea9-9f55-8bd9cffa7852';
+const GHL_WEBHOOK_CHALLENGE = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4nx5JQk1dIv/webhook-trigger/f338ba91-8aec-4554-9870-432e4cd1fa71';
+const GHL_WEBHOOK_GLP1 = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4nx5JQk1dIv/webhook-trigger/8749ac4e-bb6d-4cb5-a06d-1c3400fc3d2e';
   const MT = 'https://www.mysticaltranscendence.com';
 
   window.scrollToCalc = function(e) { e.preventDefault(); document.getElementById('calculator').scrollIntoView({behavior:'smooth',block:'start'}); }
@@ -1281,7 +1285,11 @@ const GHL_WEBHOOK_URL_2 = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4
     };
     Promise.all([
       fetch(GHL_WEBHOOK_URL, webhookOpts),
-      fetch(GHL_WEBHOOK_URL_2, webhookOpts)
+      fetch(GHL_WEBHOOK_GENDER, webhookOpts),
+      fetch(GHL_WEBHOOK_HRT, webhookOpts),
+      fetch(GHL_WEBHOOK_GOAL, webhookOpts),
+      fetch(GHL_WEBHOOK_CHALLENGE, webhookOpts),
+      fetch(GHL_WEBHOOK_GLP1, webhookOpts)
     ]).catch(function() {});
     console.log('webhooks fired');
 
