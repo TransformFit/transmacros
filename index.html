@@ -572,7 +572,7 @@ Uses event delegation — no onclick= attributes
           <input type="text" id="fname" placeholder="Your first name">
 
           <label for="email" style="margin-top:4px">Email Address</label>
-          <input type="email" id="email" placeholder="your@email.com">
+          <input type="email" id="email" placeholder="your@email.com" required>
           <div class="error-msg" id="email-err">Please enter a valid email address</div>
 
           <label style="margin-top:4px">Phone Number <span class="optional-tag">(optional)</span></label>
@@ -1020,7 +1020,12 @@ const GHL_WEBHOOK_GLP1 = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4n
     try {
     console.log('showResults fired');
 
-    var email=document.getElementById('email').value;
+    var email=document.getElementById('email').value.trim();
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      alert('Please enter your email to see your results');
+      document.getElementById('email').focus();
+      return;
+    }
     console.log('email:', email);
     if (!email||!email.includes('@')||!email.includes('.')) { showErr('email-err'); console.log('email validation failed'); return; }
     hideErr('email-err');
