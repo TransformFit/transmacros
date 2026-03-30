@@ -762,7 +762,7 @@ Uses event delegation — no onclick= attributes
 </div><!-- /calc-card -->
 </div><!-- /calc-wrapper -->
 
-<section class="social-proof">
+<section class="social-proof" id="social-proof-section" style="display:none">
   <div style="text-align:center;max-width:500px;margin:0 auto;padding:20px 0">
     <p style="font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--trans-pink);margin-bottom:16px">Community</p>
     <h2 style="font-family:var(--font-display);font-size:1.8rem;color:var(--trans-white);margin-bottom:12px">Real results coming soon.</h2>
@@ -1222,6 +1222,8 @@ const GHL_WEBHOOK_GLP1 = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4n
     if (inboxNotice) inboxNotice.style.display='block';
     var fbWidget=document.getElementById('feedback-widget');
     if (fbWidget) fbWidget.classList.add('visible');
+    var socialProof=document.getElementById('social-proof-section');
+    if (socialProof) socialProof.style.display='';
     document.querySelector('.progress-header').style.display='none';
     document.getElementById('calculator').scrollIntoView({behavior:'smooth',block:'start'});
     console.log('results panel shown');
