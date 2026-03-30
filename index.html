@@ -1065,9 +1065,23 @@ const GHL_WEBHOOK_GLP1 = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4n
     var tdee=Math.round(bmr*activityMult);
     var hrtFactor=calcHRTFactor(gaab,identity,hrtMonths);
     var adjTDEE=Math.round(tdee*hrtFactor);
+
+    // Cap HRT-adjusted TDEE so trans men never exceed male baseline and trans women never go below female baseline
+    var wk=weight_lbs*0.453592, hc=height_in*2.54;
+    var maleBMR=Math.round(10*wk+6.25*hc-5*age+5);
+    var femaleBMR=Math.round(10*wk+6.25*hc-5*age-161);
+    var maleTDEE=Math.round(maleBMR*activityMult);
+    var femaleTDEE=Math.round(femaleBMR*activityMult);
+    if ((gaab==='Female'||gaab==='Intersex-HRT')&&identity==='Male'&&hrtOn) {
+      adjTDEE=Math.min(adjTDEE, maleTDEE);
+    }
+    if ((gaab==='Male'||gaab==='Intersex-HRT')&&identity==='Female'&&hrtOn) {
+      adjTDEE=Math.max(adjTDEE, femaleTDEE);
+    }
+
     var goalAdj={'Fat Loss':-500,'Muscle Gain':300,'Recomp':-200,'Maintenance':0}[goal]||0;
     var targetCals=Math.round(adjTDEE+goalAdj);
-    console.log('tdee:', tdee, 'hrtFactor:', hrtFactor, 'adjTDEE:', adjTDEE, 'targetCals:', targetCals);
+    console.log('tdee:', tdee, 'hrtFactor:', hrtFactor, 'adjTDEE:', adjTDEE, 'maleTDEE:', maleTDEE, 'femaleTDEE:', femaleTDEE, 'targetCals:', targetCals);
 
     var proteinPerLb=goal==='Muscle Gain'?1.1:goal==='Fat Loss'?1.2:0.9;
     if ((gaab==='Female'||gaab==='Intersex-HRT')&&identity==='Male'&&hrtOn&&hrtMonths>12) proteinPerLb=Math.min(proteinPerLb+0.1,1.3);
