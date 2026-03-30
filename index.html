@@ -1283,8 +1283,15 @@ const GHL_WEBHOOK_GLP1 = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4n
       headers: { 'Content-Type': 'application/json' },
       body: webhookPayload
     };
-    fetch(GHL_WEBHOOK_URL, webhookOpts).catch(function() {});
-    console.log('webhook fired');
+    Promise.all([
+      fetch(GHL_WEBHOOK_URL, webhookOpts),
+      fetch(GHL_WEBHOOK_GENDER, webhookOpts),
+      fetch(GHL_WEBHOOK_HRT, webhookOpts),
+      fetch(GHL_WEBHOOK_GOAL, webhookOpts),
+      fetch(GHL_WEBHOOK_CHALLENGE, webhookOpts),
+      fetch(GHL_WEBHOOK_GLP1, webhookOpts)
+    ]).catch(function() {});
+    console.log('webhooks fired');
 
     } catch(err) {
       console.error('showResults ERROR:', err.message, 'at line:', err.stack);
