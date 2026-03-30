@@ -483,6 +483,14 @@ Uses event delegation — no onclick= attributes
           <label for="hrt-duration">How long have you been on HRT? (months)</label>
           <input type="number" id="hrt-duration" placeholder="e.g. 18" min="0" max="600">
         </div>
+        <div class="field-group" style="margin-top:12px">
+          <label>What dose are you on?</label>
+          <div class="radio-group">
+            <input type="radio" name="hrt-dose" id="hrt-dose-full" value="full" checked><label for="hrt-dose-full">Full/standard dose</label>
+            <input type="radio" name="hrt-dose" id="hrt-dose-low" value="low"><label for="hrt-dose-low">Low dose</label>
+            <input type="radio" name="hrt-dose" id="hrt-dose-unsure" value="unsure"><label for="hrt-dose-unsure">Not sure</label>
+          </div>
+        </div>
       </div>
       <div class="info-note" id="hrt-note" style="display:none">
         <strong>Your HRT adjustment:</strong> <span id="hrt-note-text"></span>
@@ -939,7 +947,9 @@ const GHL_WEBHOOK_GLP1 = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4n
     const id=document.querySelector('input[name="identity"]:checked');
     const months=parseFloat(document.getElementById('hrt-duration').value)||0;
     if (!gaab||!id) return;
-    const factor=calcHRTFactor(gaab,id.value,months);
+    const doseEl=document.querySelector('input[name="hrt-dose"]:checked');
+    const dose=doseEl?doseEl.value:'full';
+    const factor=calcHRTFactor(gaab,id.value,months,dose);
     const pct=Math.round((factor-1)*100);
     document.getElementById('hrt-note-text').textContent=`Based on ${months} months on HRT, we're adjusting your TDEE by ${pct>0?'+':''}${pct}% to reflect your changing metabolism.`;
     note.style.display='block';
@@ -947,21 +957,28 @@ const GHL_WEBHOOK_GLP1 = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4n
 
   document.querySelectorAll('input[name="identity"]').forEach(el=>el.addEventListener('change',updateIdentityNote));
   if (document.getElementById('hrt-duration')) document.getElementById('hrt-duration').addEventListener('input',updateHRTNote);
+  document.querySelectorAll('input[name="hrt-dose"]').forEach(function(r){r.addEventListener('change',updateHRTNote);});
 
-  window.calcHRTFactor = function(gaab,identity,months) {
+  window.calcHRTFactor = function(gaab,identity,months,dose) {
     if (!hrtOn) return 1;
+    var doseScale = (dose==='low') ? 0.5 : 1;
     // Trans women / AMAB moving toward female hormones
-    if ((gaab==='Male'||gaab==='Intersex-HRT')&&identity==='Female') return months<6?1-0.01*months:0.94;
+    if ((gaab==='Male'||gaab==='Intersex-HRT')&&identity==='Female') {
+      var raw = months<6 ? -0.01*months : -0.06;
+      return 1 + raw * doseScale;
+    }
     // Trans men / AFAB moving toward male hormones
     if ((gaab==='Female'||gaab==='Intersex-HRT')&&identity==='Male') {
-      if (months<=12) return 1+0.015*months;
-      if (months<=24) return 1.18+0.003*(months-12);
-      return 1.216;
+      var raw;
+      if (months<=12) raw = 0.015*months;
+      else if (months<=24) raw = 0.18+0.003*(months-12);
+      else raw = 0.216;
+      return 1 + raw * doseScale;
     }
     if (identity==='Non-binary') {
-      if (gaab==='Male') return 0.97;
-      if (gaab==='Female') return 1.09;
-      return 1.03; // Intersex non-binary
+      if (gaab==='Male') return 1 + (-0.03) * doseScale;
+      if (gaab==='Female') return 1 + 0.09 * doseScale;
+      return 1 + 0.03 * doseScale; // Intersex non-binary
     }
     if (gaab==='Intersex-Mixed') return 1.0;
     return 1;
@@ -1056,14 +1073,16 @@ const GHL_WEBHOOK_GLP1 = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4n
     console.log('goal:', goal);
 
     var hrtMonths=hrtOn?(parseFloat(document.getElementById('hrt-duration').value)||0):0;
+    var hrtDoseEl=document.querySelector('input[name="hrt-dose"]:checked');
+    var hrtDose=hrtOn&&hrtDoseEl?hrtDoseEl.value:'full';
     var glp1El=document.querySelector('input[name="glp1"]:checked');
     var glp1=glp1El?glp1El.value:'';
-    console.log('hrtMonths:', hrtMonths, 'glp1:', glp1);
+    console.log('hrtMonths:', hrtMonths, 'hrtDose:', hrtDose, 'glp1:', glp1);
 
     var bmr=Math.round(calcBMR(weight_lbs,height_in,age,gaab,identity,hrtMonths));
     console.log('bmr:', bmr);
     var tdee=Math.round(bmr*activityMult);
-    var hrtFactor=calcHRTFactor(gaab,identity,hrtMonths);
+    var hrtFactor=calcHRTFactor(gaab,identity,hrtMonths,hrtDose);
     var adjTDEE=Math.round(tdee*hrtFactor);
 
     // Cap HRT-adjusted TDEE so trans men never exceed male baseline and trans women never go below female baseline
@@ -1127,11 +1146,13 @@ const GHL_WEBHOOK_GLP1 = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4n
         calloutBody.innerHTML='Your BMR uses your <strong>'+henv.toLowerCase()+' hormonal profile</strong> instead of a binary birth sex assumption \u2014 giving you a more accurate starting point.'+(hrtOn?' With <strong>'+hrtMonths+' months on HRT</strong>, an additional <strong>'+(hrtPctRaw>=0?'+':'')+hrtPctRaw+'%</strong> metabolic adjustment is applied.':' No additional HRT adjustment applied.');
       } else if (gaab==='Female'&&identity==='Male') {
         calloutTitle.textContent='Testosterone is increasing your metabolism';
-        calloutBody.innerHTML='After <strong>'+hrtMonths+' months on T</strong>, your metabolic rate has increased by <strong>~'+hrtPctRaw+'%</strong>. Testosterone drives higher muscle protein synthesis and a faster resting metabolism. Your protein target is set to <strong>'+proteinPerLb.toFixed(1)+'g/lb</strong> to fuel that growth. Reassess at your 6, 12, and 24 month marks as your body continues to change.';
+        var lowDoseNote=hrtDose==='low'?' Your targets reflect a <strong>partial adjustment for low-dose T</strong>. If your dose changes, recalculate for updated targets.':'';
+        calloutBody.innerHTML='After <strong>'+hrtMonths+' months on T</strong>, your metabolic rate has increased by <strong>~'+hrtPctRaw+'%</strong>. Testosterone drives higher muscle protein synthesis and a faster resting metabolism. Your protein target is set to <strong>'+proteinPerLb.toFixed(1)+'g/lb</strong> to fuel that growth. Reassess at your 6, 12, and 24 month marks as your body continues to change.'+lowDoseNote;
       } else if (gaab==='Male'&&identity==='Female') {
         var pctDown=Math.round((1-hrtFactor)*100);
         calloutTitle.textContent='Estrogen is shifting your metabolism';
-        calloutBody.innerHTML='After <strong>'+hrtMonths+' months on HRT</strong>, your metabolic rate has decreased by <strong>~'+pctDown+'%</strong>. Estrogen and T-blockers gradually reduce resting energy expenditure and shift body composition toward more fat and less muscle. <strong>Don\'t under-eat</strong> \u2014 your body needs adequate fuel to transition safely.';
+        var lowDoseNote=hrtDose==='low'?' Your targets reflect a <strong>partial adjustment for low-dose HRT</strong>. If your dose changes, recalculate for updated targets.':'';
+        calloutBody.innerHTML='After <strong>'+hrtMonths+' months on HRT</strong>, your metabolic rate has decreased by <strong>~'+pctDown+'%</strong>. Estrogen and T-blockers gradually reduce resting energy expenditure and shift body composition toward more fat and less muscle. <strong>Don\'t under-eat</strong> \u2014 your body needs adequate fuel to transition safely.'+lowDoseNote;
       } else if (identity==='Non-binary') {
         calloutTitle.textContent='Partial hormonal adjustment applied';
         calloutBody.innerHTML='A <strong>'+(hrtPctRaw>=0?'+':'')+hrtPctRaw+'%</strong> metabolic adjustment has been applied based on your hormonal environment, reflecting partial or low-dose HRT effects on your resting metabolism.';
@@ -1287,6 +1308,7 @@ const GHL_WEBHOOK_GLP1 = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4n
         activity_level: document.getElementById('activity').selectedOptions[0].text,
         on_hrt: hrtOn ? 'true' : 'false',
         hrt_duration: hrtMonths,
+        hrt_dose: hrtDose,
         gender_identity: identity,
         birth_sex: gaabRaw,
         biggest_challenge: challenge,
