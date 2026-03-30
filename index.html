@@ -161,10 +161,10 @@ Uses event delegation — no onclick= attributes
   .feedback-widget{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:24px;text-align:center;margin-top:28px;display:none}
   .feedback-widget.visible{display:block}
   .feedback-widget h4{font-family:var(--font-display);font-size:1rem;color:var(--trans-white);margin-bottom:12px}
-  .feedback-stars{display:flex;justify-content:center;gap:8px;margin-bottom:16px}
-  .feedback-star{font-size:1.6rem;cursor:pointer;color:var(--bg3);transition:color 0.15s}
-  .feedback-star.active{color:var(--trans-pink)}
-  .feedback-star:hover,.feedback-star:hover~.feedback-star{color:var(--trans-pink)}
+  .feedback-stars{display:flex;justify-content:center;gap:4px;margin-bottom:8px}
+  .feedback-star{font-size:2.2rem;cursor:pointer;color:var(--bg3);transition:color 0.15s;padding:6px;min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center}
+  .feedback-star.active,.feedback-star.hover{color:var(--trans-pink)}
+  .feedback-rating-label{font-size:0.82rem;color:var(--muted);text-align:center;margin-bottom:16px;min-height:1.2em}
   .feedback-form{display:none}
   .feedback-form.visible{display:block}
   .feedback-textarea{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px;font-family:var(--font-body);font-size:0.85rem;color:var(--text);resize:vertical;min-height:70px;outline:none;margin-bottom:12px}
@@ -751,6 +751,7 @@ Uses event delegation — no onclick= attributes
         <span class="feedback-star" data-rating="4">&#9733;</span>
         <span class="feedback-star" data-rating="5">&#9733;</span>
       </div>
+      <div class="feedback-rating-label" id="feedback-rating-label"></div>
       <div class="feedback-form" id="feedback-form">
         <textarea class="feedback-textarea" id="feedback-text" placeholder="Tell us more (optional)"></textarea>
         <button type="button" class="feedback-submit" id="feedback-submit" onclick="window.open('https://link.apisystem.tech/widget/survey/CIBoctkwXSuGPvvWIlOg', '_blank')">Submit Feedback</button>
@@ -1599,17 +1600,32 @@ const GHL_WEBHOOK_GLP1 = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4n
 
   // Feedback widget
   var _feedbackRating=0;
-  if (document.getElementById('feedback-stars')) document.getElementById('feedback-stars').addEventListener('click', function(e) {
-    var star=e.target.closest('.feedback-star');
-    if (!star) return;
-    _feedbackRating=parseInt(star.getAttribute('data-rating'),10);
-    var stars=document.querySelectorAll('.feedback-star');
-    for (var i=0;i<stars.length;i++) {
-      stars[i].classList.toggle('active',i<_feedbackRating);
+  var _fbStarsContainer=document.getElementById('feedback-stars');
+  if (_fbStarsContainer) {
+    var _fbStars=_fbStarsContainer.querySelectorAll('.feedback-star');
+    var _fbLabel=document.getElementById('feedback-rating-label');
+    function _setStarHover(upTo) {
+      for (var i=0;i<_fbStars.length;i++) _fbStars[i].classList.toggle('hover',i<upTo);
     }
-    var form=document.getElementById('feedback-form');
-    if (form) form.classList.add('visible');
-  });
+    function _updateLabel(rating) {
+      if (_fbLabel) _fbLabel.textContent=rating?rating+' out of 5':'';
+    }
+    _fbStarsContainer.addEventListener('mouseover', function(e) {
+      var star=e.target.closest('.feedback-star');
+      if (!star) return;
+      _setStarHover(parseInt(star.getAttribute('data-rating'),10));
+    });
+    _fbStarsContainer.addEventListener('mouseleave', function() { _setStarHover(0); });
+    _fbStarsContainer.addEventListener('click', function(e) {
+      var star=e.target.closest('.feedback-star');
+      if (!star) return;
+      _feedbackRating=parseInt(star.getAttribute('data-rating'),10);
+      for (var i=0;i<_fbStars.length;i++) _fbStars[i].classList.toggle('active',i<_feedbackRating);
+      _updateLabel(_feedbackRating);
+      var form=document.getElementById('feedback-form');
+      if (form) form.classList.add('visible');
+    });
+  }
 
   if (document.getElementById('feedback-submit')) document.getElementById('feedback-submit').addEventListener('click', function() {
     window.open('https://link.apisystem.tech/widget/survey/CIBoctkwXSuGPvvWIlOg','_blank');
