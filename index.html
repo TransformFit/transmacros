@@ -632,7 +632,7 @@ Uses event delegation — no onclick= attributes
       <p style="font-size:0.8rem;color:var(--muted);line-height:1.65;margin:0">These numbers are a starting point, not a permanent prescription. Your metabolism changes as your HRT progresses, your weight shifts, and your training evolves. Recalculate any time your weight changes by 10+ lbs, you hit an HRT milestone, or your progress stalls for more than 3 weeks. <a href="https://transmacros.com" style="color:var(--trans-blue);text-decoration:none;font-weight:600">Recalculate anytime.</a></p>
     </div>
 
-    <div class="share-section">
+    <div class="share-section" id="share-section">
       <h3>Share Your Results</h3>
       <p>Screenshot the card below or copy your numbers to share with friends, your coach, or your community.</p>
       <div class="share-card">
@@ -767,7 +767,7 @@ Uses event delegation — no onclick= attributes
     <p style="font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--trans-pink);margin-bottom:16px">Community</p>
     <h2 style="font-family:var(--font-display);font-size:1.8rem;color:var(--trans-white);margin-bottom:12px">Real results coming soon.</h2>
     <p style="font-size:0.9rem;color:var(--muted);line-height:1.7;margin-bottom:24px">Be one of the first to share yours.</p>
-    <a href="#testimonials" style="display:inline-flex;align-items:center;gap:8px;background:rgba(91,206,250,0.1);border:1px solid rgba(91,206,250,0.25);color:var(--trans-blue);font-family:var(--font-body);font-size:0.85rem;font-weight:600;padding:11px 24px;border-radius:100px;text-decoration:none;transition:all 0.2s">Share Your Results</a>
+    <a href="#share-section" onclick="event.preventDefault();document.getElementById('share-section').scrollIntoView({behavior:'smooth'})" style="display:inline-flex;align-items:center;gap:8px;background:rgba(91,206,250,0.1);border:1px solid rgba(91,206,250,0.25);color:var(--trans-blue);font-family:var(--font-body);font-size:0.85rem;font-weight:600;padding:11px 24px;border-radius:100px;text-decoration:none;transition:all 0.2s;cursor:pointer">Share Your Results</a>
   </div>
 </section>
 
