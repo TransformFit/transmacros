@@ -482,8 +482,17 @@ Uses event delegation — no onclick= attributes
       </div>
       <div class="conditional-field" id="hrt-months-field">
         <div class="field-group">
-          <label for="hrt-duration">How long have you been on HRT? (months)</label>
-          <input type="number" id="hrt-duration" placeholder="e.g. 18" min="0" max="600">
+          <label>How long have you been on HRT?</label>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div>
+              <label for="hrt-years" style="font-size:0.78rem;color:var(--muted);margin-bottom:4px">Years</label>
+              <select id="hrt-years"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option></select>
+            </div>
+            <div>
+              <label for="hrt-months" style="font-size:0.78rem;color:var(--muted);margin-bottom:4px">Months</label>
+              <select id="hrt-months"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option></select>
+            </div>
+          </div>
         </div>
         <div class="field-group" style="margin-top:12px">
           <label>What dose are you on?</label>
@@ -737,7 +746,7 @@ Uses event delegation — no onclick= attributes
       <div style="font-size:1.5rem;margin-bottom:10px">📱</div>
       <h4 style="font-family:var(--font-display);font-size:1rem;color:var(--trans-white);margin-bottom:6px">Track with Essentials</h4>
       <p style="font-size:0.82rem;color:var(--muted);line-height:1.5;margin-bottom:16px">Workouts, meal plans & metrics built for your transition journey</p>
-      <a href="https://essentials.transformfitness.net" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px;background:var(--trans-gradient);color:#0d0f14;font-family:var(--font-body);font-size:0.85rem;font-weight:600;padding:11px 24px;border-radius:100px;text-decoration:none;transition:transform 0.2s;box-shadow:0 0 20px rgba(91,206,250,0.15)">Get Essentials</a>
+      <a href="https://transformfitness.net/essentials-membership" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px;background:var(--trans-gradient);color:#0d0f14;font-family:var(--font-body);font-size:0.85rem;font-weight:600;padding:11px 24px;border-radius:100px;text-decoration:none;transition:transform 0.2s;box-shadow:0 0 20px rgba(91,206,250,0.15)">Get Essentials</a>
     </div>
 
     <div class="results-cta">
@@ -789,7 +798,7 @@ Uses event delegation — no onclick= attributes
     <div>
       <div style="font-size:0.7rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;text-align:center">In partnership with</div>
       <a href="https://www.mysticaltranscendence.com" target="_blank" rel="noopener" style="text-decoration:none;display:flex;align-items:center;gap:8px">
-        <span class="mt-footer-logo">Mystical Transcendence</span>
+        <img src="https://www.mysticaltranscendence.com/cdn/shop/files/LogoMysticalTranscendence_1.png?v=1679909458&width=600" alt="Mystical Transcendence" style="width:120px;height:auto">
         <span style="font-size:0.7rem;color:var(--muted)">↗</span>
       </a>
       <div class="mt-footer-tagline" style="text-align:center">Trans-owned · Queer-led · Science-backed</div>
@@ -799,7 +808,7 @@ Uses event delegation — no onclick= attributes
   <p style="margin-bottom:10px">
     <a href="https://www.instagram.com/treynertrey" target="_blank" rel="noopener">@treynertrey</a> <span style="color:var(--border);margin:0 6px">&bull;</span>
     <a href="https://www.skool.com/transformfitnesscommunity" target="_blank" rel="noopener">Join the Community</a> <span style="color:var(--border);margin:0 6px">&bull;</span>
-    <a href="https://essentials.transformfitness.net" target="_blank" rel="noopener">Essentials App</a> <span style="color:var(--border);margin:0 6px">&bull;</span>
+    <a href="https://transformfitness.net/essentials-membership" target="_blank" rel="noopener">Essentials App</a> <span style="color:var(--border);margin:0 6px">&bull;</span>
     <a href="https://www.transformfitness.net" target="_blank" rel="noopener">Coaching</a>
   </p>
   <p style="margin-bottom:10px">
@@ -929,15 +938,21 @@ const GHL_WEBHOOK_GLP1 = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4n
     if (!gaab||!id) return;
     const note=document.getElementById('identity-note');
     const txt=document.getElementById('identity-note-text');
-    const msgs={
-      'Female-Male':'As a trans man (AFAB), testosterone typically increases your metabolic rate up to ~22% over 24 months. Your BMR gradually shifts toward male-range values as HRT continues.',
-      'Male-Female':'As a trans woman (AMAB), estrogen + T-blockers gradually reduce your metabolic rate by up to ~6% over 6 months.',
-      'Female-Non-binary':'For non-binary folks (AFAB), we apply a partial upward metabolic adjustment reflecting partial or low-dose HRT.',
-      'Male-Non-binary':'For non-binary folks (AMAB), we apply a partial downward metabolic adjustment.',
-      'Intersex-any':'For intersex individuals, we calculate your BMR from your hormonal environment rather than a binary birth sex assumption — giving you a more accurate baseline.',
+    const msgsHrt={
+      'Female-Male':'As a trans man on testosterone, your metabolic rate increases up to ~22% over 24 months. Your BMR gradually shifts toward male-range values as HRT continues.',
+      'Male-Female':'As a trans woman on estrogen and T-blockers, your metabolic rate gradually reduces by up to ~6% over 6 months.',
+      'Female-Non-binary':'For non-binary folks (AFAB) on HRT, we apply a partial upward metabolic adjustment based on your dose and duration.',
+      'Male-Non-binary':'For non-binary folks (AMAB) on HRT, we apply a partial downward metabolic adjustment based on your dose and duration.',
     };
+    const msgsNoHrt={
+      'Female-Male':'As a trans man not currently on HRT, your macros are calculated using your current hormonal baseline. If you start HRT in the future, recalculate at that time as testosterone will shift your metabolic rate.',
+      'Male-Female':'As a trans woman not currently on HRT, your macros are calculated using your current hormonal baseline. If you start HRT in the future, recalculate at that time as estrogen will shift your metabolic rate.',
+      'Female-Non-binary':'As a non-binary person not currently on HRT, your macros are calculated using your current hormonal baseline. No metabolic adjustment has been applied.',
+      'Male-Non-binary':'As a non-binary person not currently on HRT, your macros are calculated using your current hormonal baseline. No metabolic adjustment has been applied.',
+    };
+    const msgsIntersex='For intersex individuals, we calculate your BMR from your hormonal environment rather than a binary birth sex assumption — giving you a more accurate baseline.';
     let key = gaab.value==='Intersex' ? 'Intersex-any' : `${gaab.value}-${id.value}`;
-    const msg = msgs[key] || '';
+    const msg = key==='Intersex-any' ? msgsIntersex : (hrtOn ? (msgsHrt[key]||'') : (msgsNoHrt[key]||''));
     if (msg) { txt.textContent=msg; note.style.display='block'; } else { note.style.display='none'; }
   }
 
@@ -947,7 +962,7 @@ const GHL_WEBHOOK_GLP1 = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4n
     if (!hrtOn) { note.style.display='none'; return; }
     const gaab=getGAAB();
     const id=document.querySelector('input[name="identity"]:checked');
-    const months=parseFloat(document.getElementById('hrt-duration').value)||0;
+    const months=(parseInt(document.getElementById('hrt-years').value)||0)*12+(parseInt(document.getElementById('hrt-months').value)||0);
     if (!gaab||!id) return;
     const doseEl=document.querySelector('input[name="hrt-dose"]:checked');
     const dose=doseEl?doseEl.value:'full';
@@ -958,7 +973,8 @@ const GHL_WEBHOOK_GLP1 = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4n
   }
 
   document.querySelectorAll('input[name="identity"]').forEach(el=>el.addEventListener('change',updateIdentityNote));
-  if (document.getElementById('hrt-duration')) document.getElementById('hrt-duration').addEventListener('input',updateHRTNote);
+  if (document.getElementById('hrt-years')) document.getElementById('hrt-years').addEventListener('change',updateHRTNote);
+  if (document.getElementById('hrt-months')) document.getElementById('hrt-months').addEventListener('change',updateHRTNote);
   document.querySelectorAll('input[name="hrt-dose"]').forEach(function(r){r.addEventListener('change',updateHRTNote);});
 
   window.calcHRTFactor = function(gaab,identity,months,dose) {
@@ -1074,7 +1090,7 @@ const GHL_WEBHOOK_GLP1 = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4n
     var goal=goalEl?goalEl.value:'';
     console.log('goal:', goal);
 
-    var hrtMonths=hrtOn?(parseFloat(document.getElementById('hrt-duration').value)||0):0;
+    var hrtMonths=hrtOn?((parseInt(document.getElementById('hrt-years').value)||0)*12+(parseInt(document.getElementById('hrt-months').value)||0)):0;
     var hrtDoseEl=document.querySelector('input[name="hrt-dose"]:checked');
     var hrtDose=hrtOn&&hrtDoseEl?hrtDoseEl.value:'full';
     var glp1El=document.querySelector('input[name="glp1"]:checked');
@@ -1270,7 +1286,7 @@ const GHL_WEBHOOK_GLP1 = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4n
     console.log('results panel shown');
 
     // Store baseline values for both sliders
-    var proteinMin = Math.min(protein, Math.round((targetCals * 0.30) / 4));
+    var proteinMin = Math.min(protein, Math.round((targetCals * 0.20) / 4));
     var proteinMax = Math.max(protein, Math.round((targetCals * 0.45) / 4));
     window._baseline = { targetCals: targetCals, protein: protein, weight_lbs: weight_lbs, proteinMin: proteinMin, proteinMax: proteinMax };
     document.getElementById('r-baseline-cals').textContent = targetCals.toLocaleString();
@@ -1364,7 +1380,7 @@ const GHL_WEBHOOK_GLP1 = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4n
     var protein = pSlider ? parseInt(pSlider.value, 10) : b.protein;
 
     // Reclamp protein to new calorie total
-    var pMin = Math.round((adj * 0.30) / 4);
+    var pMin = Math.round((adj * 0.20) / 4);
     var pMax = Math.round((adj * 0.45) / 4);
     if (pSlider) {
       pSlider.min = pMin;
@@ -1693,7 +1709,7 @@ const GHL_WEBHOOK_GLP1 = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4n
     else if (action === 'scrollToCalc') scrollToCalc(e);
     else if (action === 'setUnit') setUnit(param);
     else if (action === 'openSkool') window.open('https://www.skool.com/transformfitnesscommunity','_blank');
-    else if (action === 'openEssentials') window.open('https://essentials.transformfitness.net','_blank');
+    else if (action === 'openEssentials') window.open('https://transformfitness.net/essentials-membership','_blank');
   });
 
 </script>
