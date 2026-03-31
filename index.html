@@ -500,9 +500,6 @@ Uses event delegation — no onclick= attributes
           </div>
         </div>
       </div>
-      <div class="info-note" id="hrt-note" style="display:none">
-        <strong>Your HRT adjustment:</strong> <span id="hrt-note-text"></span>
-      </div>
       <div class="step-nav">
         <button type="button" class="btn-back" data-calc-action="prevStep">← Back</button>
         <button type="button" class="btn-next" data-calc-action="nextStep">Continue →</button>
@@ -890,7 +887,7 @@ const GHL_WEBHOOK_GLP1 = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4n
     document.getElementById('step-'+currentStep).classList.remove('active');
     currentStep++;
     document.getElementById('step-'+currentStep).classList.add('active');
-    updateProgress(); updateHRTNote();
+    updateProgress();
   }
   window.prevStep = function() {
     document.getElementById('step-'+currentStep).classList.remove('active');
@@ -910,7 +907,6 @@ const GHL_WEBHOOK_GLP1 = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4n
     document.getElementById('hrt-toggle').classList.toggle('on',hrtOn);
     document.getElementById('hrt-toggle-label').textContent=hrtOn?'Yes':'No';
     document.getElementById('hrt-months-field').classList.toggle('visible',hrtOn);
-    updateHRTNote();
   }
 
   window.getGAAB = function() {
@@ -928,25 +924,6 @@ const GHL_WEBHOOK_GLP1 = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4n
   }
 
 
-  window.updateHRTNote = function() {
-    if (currentStep!==2) return;
-    const note=document.getElementById('hrt-note');
-    if (!hrtOn) { note.style.display='none'; return; }
-    const gaab=getGAAB();
-    const id=document.querySelector('input[name="identity"]:checked');
-    const months=(parseInt(document.getElementById('hrt-years').value)||0)*12+(parseInt(document.getElementById('hrt-months').value)||0);
-    if (!gaab||!id) return;
-    const doseEl=document.querySelector('input[name="hrt-dose"]:checked');
-    const dose=doseEl?doseEl.value:'full';
-    const factor=calcHRTFactor(gaab,id.value,months,dose);
-    const pct=Math.round((factor-1)*100);
-    document.getElementById('hrt-note-text').textContent=`Based on ${months} months on HRT, we're adjusting your TDEE by ${pct>0?'+':''}${pct}% to reflect your changing metabolism.`;
-    note.style.display='block';
-  }
-
-  if (document.getElementById('hrt-years')) document.getElementById('hrt-years').addEventListener('change',updateHRTNote);
-  if (document.getElementById('hrt-months')) document.getElementById('hrt-months').addEventListener('change',updateHRTNote);
-  document.querySelectorAll('input[name="hrt-dose"]').forEach(function(r){r.addEventListener('change',updateHRTNote);});
 
   window.calcHRTFactor = function(gaab,identity,months,dose) {
     if (!hrtOn) return 1;
