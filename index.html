@@ -460,9 +460,6 @@ Uses event delegation — no onclick= attributes
         <div class="error-msg" id="identity-err">Please make a selection</div>
       </div>
 
-      <div class="info-note" id="identity-note" style="display:none">
-        <strong>Why this matters:</strong> <span id="identity-note-text"></span>
-      </div>
 
       <div class="step-nav">
         <button type="button" class="btn-back" data-calc-action="prevStep">← Back</button>
@@ -893,7 +890,7 @@ const GHL_WEBHOOK_GLP1 = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4n
     document.getElementById('step-'+currentStep).classList.remove('active');
     currentStep++;
     document.getElementById('step-'+currentStep).classList.add('active');
-    updateProgress(); updateIdentityNote(); updateHRTNote();
+    updateProgress(); updateHRTNote();
   }
   window.prevStep = function() {
     document.getElementById('step-'+currentStep).classList.remove('active');
@@ -905,7 +902,6 @@ const GHL_WEBHOOK_GLP1 = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4n
   document.querySelectorAll('input[name="gaab"]').forEach(el => {
     el.addEventListener('change', function() {
       document.getElementById('intersex-field').classList.toggle('visible', this.value==='Intersex');
-      updateIdentityNote();
     });
   });
 
@@ -931,30 +927,6 @@ const GHL_WEBHOOK_GLP1 = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4n
     return gaab.value;
   }
 
-  window.updateIdentityNote = function() {
-    if (currentStep!==1) return;
-    const gaab=document.querySelector('input[name="gaab"]:checked');
-    const id=document.querySelector('input[name="identity"]:checked');
-    if (!gaab||!id) return;
-    const note=document.getElementById('identity-note');
-    const txt=document.getElementById('identity-note-text');
-    const msgsHrt={
-      'Female-Male':'As a trans man on testosterone, your metabolic rate increases up to ~22% over 24 months. Your BMR gradually shifts toward male-range values as HRT continues.',
-      'Male-Female':'As a trans woman on estrogen and T-blockers, your metabolic rate gradually reduces by up to ~6% over 6 months.',
-      'Female-Non-binary':'For non-binary folks (AFAB) on HRT, we apply a partial upward metabolic adjustment based on your dose and duration.',
-      'Male-Non-binary':'For non-binary folks (AMAB) on HRT, we apply a partial downward metabolic adjustment based on your dose and duration.',
-    };
-    const msgsNoHrt={
-      'Female-Male':'As a trans man not currently on HRT, your macros are calculated using your current hormonal baseline. If you start HRT in the future, recalculate at that time as testosterone will shift your metabolic rate.',
-      'Male-Female':'As a trans woman not currently on HRT, your macros are calculated using your current hormonal baseline. If you start HRT in the future, recalculate at that time as estrogen will shift your metabolic rate.',
-      'Female-Non-binary':'As a non-binary person not currently on HRT, your macros are calculated using your current hormonal baseline. No metabolic adjustment has been applied.',
-      'Male-Non-binary':'As a non-binary person not currently on HRT, your macros are calculated using your current hormonal baseline. No metabolic adjustment has been applied.',
-    };
-    const msgsIntersex='For intersex individuals, we calculate your BMR from your hormonal environment rather than a binary birth sex assumption — giving you a more accurate baseline.';
-    let key = gaab.value==='Intersex' ? 'Intersex-any' : `${gaab.value}-${id.value}`;
-    const msg = key==='Intersex-any' ? msgsIntersex : (hrtOn ? (msgsHrt[key]||'') : (msgsNoHrt[key]||''));
-    if (msg) { txt.textContent=msg; note.style.display='block'; } else { note.style.display='none'; }
-  }
 
   window.updateHRTNote = function() {
     if (currentStep!==2) return;
@@ -972,7 +944,6 @@ const GHL_WEBHOOK_GLP1 = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4n
     note.style.display='block';
   }
 
-  document.querySelectorAll('input[name="identity"]').forEach(el=>el.addEventListener('change',updateIdentityNote));
   if (document.getElementById('hrt-years')) document.getElementById('hrt-years').addEventListener('change',updateHRTNote);
   if (document.getElementById('hrt-months')) document.getElementById('hrt-months').addEventListener('change',updateHRTNote);
   document.querySelectorAll('input[name="hrt-dose"]').forEach(function(r){r.addEventListener('change',updateHRTNote);});
