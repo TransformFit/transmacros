@@ -401,18 +401,18 @@ Uses event delegation — no onclick= attributes
       <div class="field-row">
         <div>
           <label for="weight">Current Weight <span id="weight-unit-label">(lbs)</span></label>
-          <input type="number" id="weight" placeholder="e.g. 185" min="1" max="999">
+          <input type="number" id="weight" placeholder="e.g. 185">
           <div class="error-msg" id="weight-err">Please enter your weight</div>
         </div>
         <div>
           <label for="height">Height <span id="height-unit-label">(inches)</span></label>
-          <input type="number" id="height" placeholder="e.g. 68" min="1" max="999">
+          <input type="number" id="height" placeholder="e.g. 68">
           <div class="error-msg" id="height-err">Please enter your height</div>
         </div>
       </div>
       <div class="field-group">
         <label for="age">Age</label>
-        <input type="number" id="age" placeholder="e.g. 28" min="13" max="99">
+        <input type="number" id="age" placeholder="e.g. 28">
         <div class="error-msg" id="age-err">Please enter your age</div>
       </div>
       <div class="step-nav"><div></div><button type="button" class="btn-next" data-calc-action="nextStep">Continue →</button></div>
@@ -861,9 +861,28 @@ const GHL_WEBHOOK_GLP1 = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4n
   window.validateStep = function() {
     if (currentStep===0) {
       let ok=true;
-      if (!document.getElementById('weight').value) { showErr('weight-err'); ok=false; } else hideErr('weight-err');
-      if (!document.getElementById('height').value) { showErr('height-err'); ok=false; } else hideErr('height-err');
-      if (!document.getElementById('age').value||document.getElementById('age').value<13) { showErr('age-err'); ok=false; } else hideErr('age-err');
+      var wVal=parseFloat(document.getElementById('weight').value);
+      var hVal=parseFloat(document.getElementById('height').value);
+      var aVal=parseFloat(document.getElementById('age').value);
+      var wErrEl=document.getElementById('weight-err');
+      var hErrEl=document.getElementById('height-err');
+      var aErrEl=document.getElementById('age-err');
+      // Weight: 50-650 lbs or 22.7-295 kg
+      var wMin=useMetric?22.7:50, wMax=useMetric?295:650;
+      var wUnit=useMetric?'kg':'lbs';
+      if (!wVal||isNaN(wVal)) { wErrEl.textContent='Please enter your weight'; showErr('weight-err'); ok=false; }
+      else if (wVal<wMin||wVal>wMax) { wErrEl.textContent='Weight must be between '+Math.round(wMin)+' and '+Math.round(wMax)+' '+wUnit; showErr('weight-err'); ok=false; }
+      else hideErr('weight-err');
+      // Height: 36-96 inches or 91.4-243.8 cm
+      var hMin=useMetric?91:36, hMax=useMetric?244:96;
+      var hUnit=useMetric?'cm':'inches';
+      if (!hVal||isNaN(hVal)) { hErrEl.textContent='Please enter your height'; showErr('height-err'); ok=false; }
+      else if (hVal<hMin||hVal>hMax) { hErrEl.textContent='Height must be between '+hMin+' and '+hMax+' '+hUnit; showErr('height-err'); ok=false; }
+      else hideErr('height-err');
+      // Age: 13-99
+      if (!aVal||isNaN(aVal)) { aErrEl.textContent='Please enter your age'; showErr('age-err'); ok=false; }
+      else if (aVal<13||aVal>99) { aErrEl.textContent='Age must be between 13 and 99'; showErr('age-err'); ok=false; }
+      else hideErr('age-err');
       return ok;
     }
     if (currentStep===1) {
