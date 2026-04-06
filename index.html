@@ -348,7 +348,7 @@ Uses event delegation — no onclick= attributes
       <div class="trust-item"><div class="dot"></div><span>Trans-affirming</span></div>
       <div class="trust-item"><div class="dot"></div><span>Free, always</span></div>
     </div>
-    <p style="font-size:0.82rem;color:var(--muted);margin-top:24px">Hundreds of trans people have already calculated their macros.</p>
+    <p style="font-size:0.82rem;color:var(--muted);margin-top:24px">1,000+ trans people have already calculated their macros.</p>
     <div style="margin-top:16px;display:flex;align-items:center;justify-content:center;gap:10px">
       <span style="font-size:0.72rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted)">Powered by</span>
       <a href="https://www.mysticaltranscendence.com" target="_blank" rel="noopener" style="text-decoration:none">
@@ -404,10 +404,24 @@ Uses event delegation — no onclick= attributes
           <input type="number" id="weight" placeholder="e.g. 185">
           <div class="error-msg" id="weight-err">Please enter your weight</div>
         </div>
-        <div>
-          <label for="height">Height <span id="height-unit-label">(inches)</span></label>
-          <input type="number" id="height" placeholder="e.g. 68">
+        <div id="height-imperial-wrap">
+          <label>Height <span id="height-unit-label">(ft / in)</span></label>
+          <div style="display:flex;gap:8px">
+            <select id="height-feet" style="flex:1;padding:10px 12px;font-family:var(--font-body);font-size:0.9rem;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);outline:none">
+              <option value="">Feet</option>
+              <option value="3">3 ft</option><option value="4">4 ft</option><option value="5" selected>5 ft</option><option value="6">6 ft</option><option value="7">7 ft</option>
+            </select>
+            <select id="height-inches" style="flex:1;padding:10px 12px;font-family:var(--font-body);font-size:0.9rem;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);outline:none">
+              <option value="">Inches</option>
+              <option value="0">0 in</option><option value="1">1 in</option><option value="2">2 in</option><option value="3">3 in</option><option value="4">4 in</option><option value="5">5 in</option><option value="6">6 in</option><option value="7">7 in</option><option value="8" selected>8 in</option><option value="9">9 in</option><option value="10">10 in</option><option value="11">11 in</option>
+            </select>
+          </div>
           <div class="error-msg" id="height-err">Please enter your height</div>
+        </div>
+        <div id="height-metric-wrap" style="display:none">
+          <label for="height-cm">Height <span>(cm)</span></label>
+          <input type="number" id="height-cm" placeholder="e.g. 173">
+          <div class="error-msg" id="height-cm-err">Please enter your height</div>
         </div>
       </div>
       <div class="field-group">
@@ -737,12 +751,6 @@ Uses event delegation — no onclick= attributes
       <a href="https://www.transformfitness.net" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px;background:var(--trans-gradient);color:#0d0f14;font-family:var(--font-body);font-size:0.85rem;font-weight:600;padding:11px 24px;border-radius:100px;text-decoration:none;transition:transform 0.2s;box-shadow:0 0 20px rgba(91,206,250,0.15)">Explore Coaching</a>
     </div>
 
-    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:24px;text-align:center;margin-bottom:24px">
-      <div style="font-size:1.5rem;margin-bottom:10px">📱</div>
-      <h4 style="font-family:var(--font-display);font-size:1rem;color:var(--trans-white);margin-bottom:6px">Track with Essentials</h4>
-      <p style="font-size:0.82rem;color:var(--muted);line-height:1.5;margin-bottom:16px">Workouts, meal plans & metrics built for your transition journey</p>
-      <a href="https://transformfitness.net/essentials-membership" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px;background:var(--trans-gradient);color:#0d0f14;font-family:var(--font-body);font-size:0.85rem;font-weight:600;padding:11px 24px;border-radius:100px;text-decoration:none;transition:transform 0.2s;box-shadow:0 0 20px rgba(91,206,250,0.15)">Get Essentials</a>
-    </div>
 
     <div class="results-cta">
       <h3 id="cta-headline">What happens next?</h3>
@@ -803,7 +811,6 @@ Uses event delegation — no onclick= attributes
   <p style="margin-bottom:10px">
     <a href="https://www.instagram.com/treynertrey" target="_blank" rel="noopener">@treynertrey</a> <span style="color:var(--border);margin:0 6px">&bull;</span>
     <a href="https://www.skool.com/transformfitnesscommunity" target="_blank" rel="noopener">Join the Community</a> <span style="color:var(--border);margin:0 6px">&bull;</span>
-    <a href="https://transformfitness.net/essentials-membership" target="_blank" rel="noopener">Essentials App</a> <span style="color:var(--border);margin:0 6px">&bull;</span>
     <a href="https://www.transformfitness.net" target="_blank" rel="noopener">Coaching</a>
   </p>
   <p style="margin-bottom:10px">
@@ -841,9 +848,9 @@ const GHL_WEBHOOK_GLP1 = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4n
     document.getElementById('unit-imperial').classList.toggle('active', !useMetric);
     document.getElementById('unit-metric').classList.toggle('active', useMetric);
     document.getElementById('weight-unit-label').textContent = useMetric ? '(kg)' : '(lbs)';
-    document.getElementById('height-unit-label').textContent = useMetric ? '(cm)' : '(inches)';
     document.getElementById('weight').placeholder = useMetric ? 'e.g. 84' : 'e.g. 185';
-    document.getElementById('height').placeholder = useMetric ? 'e.g. 173' : 'e.g. 68';
+    document.getElementById('height-imperial-wrap').style.display = useMetric ? 'none' : '';
+    document.getElementById('height-metric-wrap').style.display = useMetric ? '' : 'none';
   }
 
   window.updateProgress = function() {
@@ -862,7 +869,7 @@ const GHL_WEBHOOK_GLP1 = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4n
     if (currentStep===0) {
       let ok=true;
       var wVal=parseFloat(document.getElementById('weight').value);
-      var hVal=parseFloat(document.getElementById('height').value);
+      var hVal=useMetric?parseFloat(document.getElementById('height-cm').value):(parseInt(document.getElementById('height-feet').value||0)*12+parseInt(document.getElementById('height-inches').value||0));
       var aVal=parseFloat(document.getElementById('age').value);
       var wErrEl=document.getElementById('weight-err');
       var hErrEl=document.getElementById('height-err');
@@ -873,12 +880,19 @@ const GHL_WEBHOOK_GLP1 = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4n
       if (!wVal||isNaN(wVal)) { wErrEl.textContent='Please enter your weight'; showErr('weight-err'); ok=false; }
       else if (wVal<wMin||wVal>wMax) { wErrEl.textContent='Weight must be between '+Math.round(wMin)+' and '+Math.round(wMax)+' '+wUnit; showErr('weight-err'); ok=false; }
       else hideErr('weight-err');
-      // Height: 36-96 inches or 91.4-243.8 cm
-      var hMin=useMetric?91:36, hMax=useMetric?244:96;
-      var hUnit=useMetric?'cm':'inches';
-      if (!hVal||isNaN(hVal)) { hErrEl.textContent='Please enter your height'; showErr('height-err'); ok=false; }
-      else if (hVal<hMin||hVal>hMax) { hErrEl.textContent='Height must be between '+hMin+' and '+hMax+' '+hUnit; showErr('height-err'); ok=false; }
-      else hideErr('height-err');
+      // Height validation
+      if (useMetric) {
+        var hCm=parseFloat(document.getElementById('height-cm').value);
+        var hCmErr=document.getElementById('height-cm-err');
+        if (!hCm||isNaN(hCm)) { hCmErr.textContent='Please enter your height'; showErr('height-cm-err'); ok=false; }
+        else if (hCm<91||hCm>244) { hCmErr.textContent='Height must be between 91 and 244 cm'; showErr('height-cm-err'); ok=false; }
+        else hideErr('height-cm-err');
+      } else {
+        var hFeet=document.getElementById('height-feet').value;
+        var hInch=document.getElementById('height-inches').value;
+        if (hFeet===''||hInch==='') { hErrEl.textContent='Please select your height'; showErr('height-err'); ok=false; }
+        else hideErr('height-err');
+      }
       // Age: 13-99
       if (!aVal||isNaN(aVal)) { aErrEl.textContent='Please enter your age'; showErr('age-err'); ok=false; }
       else if (aVal<13||aVal>99) { aErrEl.textContent='Age must be between 13 and 99'; showErr('age-err'); ok=false; }
@@ -1033,7 +1047,7 @@ const GHL_WEBHOOK_GLP1 = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4n
     console.log('email:', email);
 
     var weightRaw=parseFloat(document.getElementById('weight').value);
-    var heightRaw=parseFloat(document.getElementById('height').value);
+    var heightRaw=useMetric?parseFloat(document.getElementById('height-cm').value):(parseInt(document.getElementById('height-feet').value||0)*12+parseInt(document.getElementById('height-inches').value||0));
     var age=parseFloat(document.getElementById('age').value);
     var weight_lbs=useMetric?weightRaw*2.20462:weightRaw;
     var height_in=useMetric?heightRaw/2.54:heightRaw;
@@ -1091,8 +1105,8 @@ const GHL_WEBHOOK_GLP1 = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4n
     // Floor: minimum 1000 calories
     if (targetCals<1000) targetCals=1000;
 
-    var proteinPerLb=goal==='Muscle Gain'?1.1:goal==='Fat Loss'?1.2:0.9;
-    if ((gaab==='Female'||gaab==='Intersex-HRT')&&identity==='Male'&&hrtOn&&hrtMonths>12) proteinPerLb=Math.min(proteinPerLb+0.1,1.3);
+    var proteinPerLb=goal==='Muscle Gain'?0.8:goal==='Fat Loss'?0.7:goal==='Maintenance'?0.6:0.8;
+    if ((gaab==='Female'||gaab==='Intersex-HRT')&&identity==='Male'&&hrtOn&&hrtMonths>12) proteinPerLb=Math.min(proteinPerLb+0.1,1.2);
     var protein=Math.round(weight_lbs*proteinPerLb);
     if ((protein*4)>(targetCals*0.45)) { protein=Math.round((targetCals*0.45)/4); }
     var fats=Math.round((targetCals*0.25)/9);
@@ -1412,7 +1426,7 @@ const GHL_WEBHOOK_GLP1 = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4n
     document.getElementById('calorie-adjust').value = 0;
     if (b) {
       var pSlider = document.getElementById('protein-adjust');
-      var pDefault = Math.max(b.proteinMin, Math.min(b.proteinMax, Math.round(b.weight_lbs * 1.0)));
+      var pDefault = Math.max(b.proteinMin, Math.min(b.proteinMax, b.protein));
       if (pSlider) pSlider.value = pDefault;
     }
     updateMacroDisplay();
@@ -1699,7 +1713,7 @@ const GHL_WEBHOOK_GLP1 = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4n
     else if (action === 'scrollToCalc') scrollToCalc(e);
     else if (action === 'setUnit') setUnit(param);
     else if (action === 'openSkool') window.open('https://www.skool.com/transformfitnesscommunity','_blank');
-    else if (action === 'openEssentials') window.open('https://transformfitness.net/essentials-membership','_blank');
+
   });
 
 </script>
