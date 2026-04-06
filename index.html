@@ -1106,7 +1106,7 @@ const GHL_WEBHOOK_GLP1 = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4n
     if (targetCals<1000) targetCals=1000;
 
     var proteinPerLb=goal==='Muscle Gain'?0.8:goal==='Fat Loss'?0.7:goal==='Maintenance'?0.6:0.8;
-    if ((gaab==='Female'||gaab==='Intersex-HRT')&&identity==='Male'&&hrtOn&&hrtMonths>12) proteinPerLb=Math.min(proteinPerLb+0.1,1.2);
+    if ((gaab==='Female'||gaab==='Intersex-HRT')&&identity==='Male'&&hrtOn&&hrtMonths>12) proteinPerLb=Math.min(proteinPerLb+0.1,0.9);
     var protein=Math.round(weight_lbs*proteinPerLb);
     if ((protein*4)>(targetCals*0.45)) { protein=Math.round((targetCals*0.45)/4); }
     var fats=Math.round((targetCals*0.25)/9);
@@ -1160,7 +1160,7 @@ const GHL_WEBHOOK_GLP1 = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4n
       } else if (gaab==='Female'&&identity==='Male') {
         calloutTitle.textContent='Testosterone is increasing your metabolism';
         var lowDoseNote=hrtDose==='low'?' Your targets reflect a <strong>partial adjustment for low-dose T</strong>. If your dose changes, recalculate for updated targets.':'';
-        calloutBody.innerHTML='After <strong>'+hrtMonths+' months on T</strong>, your metabolic rate has increased by <strong>~'+hrtPctRaw+'%</strong>. Testosterone drives higher muscle protein synthesis and a faster resting metabolism. Your protein target is set to <strong>'+proteinPerLb.toFixed(1)+'g/lb</strong> to fuel that growth. Reassess at your 6, 12, and 24 month marks as your body continues to change.'+lowDoseNote;
+        calloutBody.innerHTML='After <strong>'+hrtMonths+' months on T</strong>, your metabolic rate has increased by <strong>~'+hrtPctRaw+'%</strong>. Testosterone drives higher muscle protein synthesis and a faster resting metabolism. Your protein minimum is set to <strong>'+proteinPerLb.toFixed(1)+'g/lb</strong> to support that growth. Reassess at your 6, 12, and 24 month marks as your body continues to change.'+lowDoseNote;
       } else if (gaab==='Male'&&identity==='Female') {
         var pctDown=Math.round((1-hrtFactor)*100);
         calloutTitle.textContent='Estrogen is shifting your metabolism';
@@ -1194,11 +1194,11 @@ const GHL_WEBHOOK_GLP1 = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4n
 
     // Macro explanations
     var proteinExplain='';
-    if (goal==='Fat Loss') proteinExplain='Set high at '+proteinPerLb.toFixed(1)+'g/lb to protect your muscle while you cut.';
-    else if (goal==='Muscle Gain') proteinExplain='Set at '+proteinPerLb.toFixed(1)+'g/lb to fuel new muscle growth.';
-    else proteinExplain='Set at '+proteinPerLb.toFixed(1)+'g/lb to maintain your current muscle mass.';
-    if (hrtOn && gaab==='Female' && identity==='Male' && hrtMonths>12) proteinExplain+=' Bumped up because T is accelerating your muscle synthesis.';
-    else if (hrtOn && gaab==='Male' && identity==='Female') proteinExplain+=' Keeping this steady helps preserve lean mass as estrogen shifts your composition.';
+    if (goal==='Fat Loss') proteinExplain='Minimum '+proteinPerLb.toFixed(1)+'g/lb to protect muscle while you lose fat. You can go higher if it fits your calories.';
+    else if (goal==='Muscle Gain') proteinExplain='Minimum '+proteinPerLb.toFixed(1)+'g/lb to support new muscle growth. More is fine if hunger and digestion allow it.';
+    else proteinExplain='Minimum '+proteinPerLb.toFixed(1)+'g/lb to maintain your current muscle. Adjust up if you are training hard.';
+    if (hrtOn && gaab==='Female' && identity==='Male' && hrtMonths>12) proteinExplain+=' Slightly higher because T increases your capacity for muscle protein synthesis.';
+    else if (hrtOn && gaab==='Male' && identity==='Female') proteinExplain+=' Holding this floor helps preserve lean mass as estrogen shifts your composition.';
     document.getElementById('r-protein-explain').textContent=proteinExplain;
 
     var carbsExplain='';
