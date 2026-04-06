@@ -494,22 +494,18 @@ Uses event delegation — no onclick= attributes
       <div class="conditional-field" id="hrt-months-field">
         <div class="field-group">
           <label>How long have you been on HRT?</label>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-            <div>
-              <label for="hrt-years" style="font-size:0.78rem;color:var(--muted);margin-bottom:4px">Years</label>
-              <select id="hrt-years"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option></select>
-            </div>
-            <div>
-              <label for="hrt-months" style="font-size:0.78rem;color:var(--muted);margin-bottom:4px">Months</label>
-              <select id="hrt-months"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option></select>
-            </div>
+          <div class="pill-group">
+            <input type="radio" name="hrt-duration" id="hrt-dur-lt6" value="under_6_months" checked><label for="hrt-dur-lt6">Less than 6 months</label>
+            <input type="radio" name="hrt-duration" id="hrt-dur-6to24" value="6_to_24_months"><label for="hrt-dur-6to24">6 months to 2 years</label>
+            <input type="radio" name="hrt-duration" id="hrt-dur-gt24" value="over_24_months"><label for="hrt-dur-gt24">More than 2 years</label>
+            <input type="radio" name="hrt-duration" id="hrt-dur-unsure" value="not_sure"><label for="hrt-dur-unsure">Not sure</label>
           </div>
         </div>
         <div class="field-group" style="margin-top:12px">
           <label>What dose are you on?</label>
-          <div class="radio-group">
-            <input type="radio" name="hrt-dose" id="hrt-dose-full" value="full" checked><label for="hrt-dose-full">Full/standard dose</label>
-            <input type="radio" name="hrt-dose" id="hrt-dose-low" value="low"><label for="hrt-dose-low">Low dose</label>
+          <div class="pill-group">
+            <input type="radio" name="hrt-dose" id="hrt-dose-full" value="full" checked><label for="hrt-dose-full">Typical prescribed dose</label>
+            <input type="radio" name="hrt-dose" id="hrt-dose-low" value="low"><label for="hrt-dose-low">Microdose / low dose</label>
             <input type="radio" name="hrt-dose" id="hrt-dose-unsure" value="unsure"><label for="hrt-dose-unsure">Not sure</label>
           </div>
         </div>
@@ -1072,7 +1068,11 @@ const GHL_WEBHOOK_GLP1 = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4n
     var goal=goalEl?goalEl.value:'';
     console.log('goal:', goal);
 
-    var hrtMonths=hrtOn?((parseInt(document.getElementById('hrt-years').value)||0)*12+(parseInt(document.getElementById('hrt-months').value)||0)):0;
+    var hrtDurEl=document.querySelector('input[name="hrt-duration"]:checked');
+    var hrtDurValue=hrtOn&&hrtDurEl?hrtDurEl.value:'not_sure';
+    var hrtDurLabel=hrtOn&&hrtDurEl?hrtDurEl.parentElement.querySelector('label[for="'+hrtDurEl.id+'"]').textContent:'Not sure';
+    var hrtDurMap={under_6_months:3,'6_to_24_months':12,over_24_months:24,not_sure:0};
+    var hrtMonths=hrtOn?(hrtDurMap[hrtDurValue]||0):0;
     var hrtDoseEl=document.querySelector('input[name="hrt-dose"]:checked');
     var hrtDose=hrtOn&&hrtDoseEl?hrtDoseEl.value:'full';
     var glp1El=document.querySelector('input[name="glp1"]:checked');
@@ -1106,7 +1106,10 @@ const GHL_WEBHOOK_GLP1 = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4n
     if (targetCals<1000) targetCals=1000;
 
     var proteinPerLb=goal==='Muscle Gain'?0.8:goal==='Fat Loss'?0.7:goal==='Maintenance'?0.6:0.8;
-    if ((gaab==='Female'||gaab==='Intersex-HRT')&&identity==='Male'&&hrtOn&&hrtMonths>12) proteinPerLb=Math.min(proteinPerLb+0.1,0.9);
+    if ((gaab==='Female'||gaab==='Intersex-HRT')&&identity==='Male'&&hrtOn&&hrtMonths>=12) {
+      var proteinBonus=hrtDose==='low'?0.05:hrtDose==='unsure'?0:0.1;
+      proteinPerLb=Math.min(proteinPerLb+proteinBonus,0.9);
+    }
     var protein=Math.round(weight_lbs*proteinPerLb);
     if ((protein*4)>(targetCals*0.40)) { protein=Math.round((targetCals*0.40)/4); }
     if (protein>200) protein=200;
@@ -1157,16 +1160,16 @@ const GHL_WEBHOOK_GLP1 = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4n
       if (gaabRaw==='Intersex') {
         var henv=(document.querySelector('input[name="horm-env"]:checked')||{}).value||'Mixed';
         calloutTitle.textContent='Calculated from your hormonal environment';
-        calloutBody.innerHTML='Your BMR uses your <strong>'+henv.toLowerCase()+' hormonal profile</strong> instead of a binary birth sex assumption \u2014 giving you a more accurate starting point.'+(hrtOn?' With <strong>'+hrtMonths+' months on HRT</strong>, an additional <strong>'+(hrtPctRaw>=0?'+':'')+hrtPctRaw+'%</strong> metabolic adjustment is applied.':' No additional HRT adjustment applied.');
+        calloutBody.innerHTML='Your BMR uses your <strong>'+henv.toLowerCase()+' hormonal profile</strong> instead of a binary birth sex assumption, giving you a more accurate starting point.'+(hrtOn?' With <strong>'+hrtDurLabel.toLowerCase()+'</strong> on HRT, an additional <strong>'+(hrtPctRaw>=0?'+':'')+hrtPctRaw+'%</strong> metabolic adjustment is applied.':' No additional HRT adjustment applied.');
       } else if (gaab==='Female'&&identity==='Male') {
         calloutTitle.textContent='Testosterone is increasing your metabolism';
-        var lowDoseNote=hrtDose==='low'?' Your targets reflect a <strong>partial adjustment for low-dose T</strong>. If your dose changes, recalculate for updated targets.':'';
-        calloutBody.innerHTML='After <strong>'+hrtMonths+' months on T</strong>, your metabolic rate has increased by <strong>~'+hrtPctRaw+'%</strong>. Testosterone drives higher muscle protein synthesis and a faster resting metabolism. Your protein minimum is set to <strong>'+proteinPerLb.toFixed(1)+'g/lb</strong> to support that growth. Reassess at your 6, 12, and 24 month marks as your body continues to change.'+lowDoseNote;
+        var lowDoseNote=hrtDose==='low'?' Your targets reflect a <strong>partial adjustment for microdose / low-dose T</strong>. If your dose changes, recalculate for updated targets.':hrtDose==='unsure'?' No protein bonus applied because dose is uncertain. Recalculate when you know your dose.':'';
+        calloutBody.innerHTML='With <strong>'+hrtDurLabel.toLowerCase()+'</strong> on T, your metabolic rate has increased by <strong>~'+hrtPctRaw+'%</strong>. Testosterone drives higher muscle protein synthesis and a faster resting metabolism. Your protein minimum is set to <strong>'+proteinPerLb.toFixed(1)+'g/lb</strong> to support that growth. Reassess as your body continues to change.'+lowDoseNote;
       } else if (gaab==='Male'&&identity==='Female') {
         var pctDown=Math.round((1-hrtFactor)*100);
         calloutTitle.textContent='Estrogen is shifting your metabolism';
-        var lowDoseNote=hrtDose==='low'?' Your targets reflect a <strong>partial adjustment for low-dose HRT</strong>. If your dose changes, recalculate for updated targets.':'';
-        calloutBody.innerHTML='After <strong>'+hrtMonths+' months on HRT</strong>, your metabolic rate has decreased by <strong>~'+pctDown+'%</strong>. Estrogen and T-blockers gradually reduce resting energy expenditure and shift body composition toward more fat and less muscle. <strong>Don\'t under-eat</strong> \u2014 your body needs adequate fuel to transition safely.'+lowDoseNote;
+        var lowDoseNote=hrtDose==='low'?' Your targets reflect a <strong>partial adjustment for microdose / low-dose HRT</strong>. If your dose changes, recalculate for updated targets.':hrtDose==='unsure'?' No additional adjustment applied because dose is uncertain.':'';
+        calloutBody.innerHTML='With <strong>'+hrtDurLabel.toLowerCase()+'</strong> on HRT, your metabolic rate has decreased by <strong>~'+pctDown+'%</strong>. Estrogen and T-blockers gradually reduce resting energy expenditure and shift body composition toward more fat and less muscle. <strong>Don\'t under-eat</strong>. Your body needs adequate fuel to transition safely.'+lowDoseNote;
       } else if (identity==='Non-binary') {
         calloutTitle.textContent='Partial hormonal adjustment applied';
         calloutBody.innerHTML='A <strong>'+(hrtPctRaw>=0?'+':'')+hrtPctRaw+'%</strong> metabolic adjustment has been applied based on your hormonal environment, reflecting partial or low-dose HRT effects on your resting metabolism.';
@@ -1323,7 +1326,8 @@ const GHL_WEBHOOK_GLP1 = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4n
         activity_level: document.getElementById('activity').selectedOptions[0].text,
         on_hrt: hrtOn ? 'true' : 'false',
         hrt_duration: hrtMonths,
-        hrt_dose: hrtDose,
+        hrt_duration_label: hrtDurLabel,
+        hrt_dose: hrtDose==='full'?'Typical prescribed dose':hrtDose==='low'?'Microdose / low dose':'Not sure',
         gender_identity: identity,
         birth_sex: gaabRaw,
         biggest_challenge: challenge,
