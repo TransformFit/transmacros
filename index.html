@@ -1108,7 +1108,8 @@ const GHL_WEBHOOK_GLP1 = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4n
     var proteinPerLb=goal==='Muscle Gain'?0.8:goal==='Fat Loss'?0.7:goal==='Maintenance'?0.6:0.8;
     if ((gaab==='Female'||gaab==='Intersex-HRT')&&identity==='Male'&&hrtOn&&hrtMonths>12) proteinPerLb=Math.min(proteinPerLb+0.1,0.9);
     var protein=Math.round(weight_lbs*proteinPerLb);
-    if ((protein*4)>(targetCals*0.45)) { protein=Math.round((targetCals*0.45)/4); }
+    if ((protein*4)>(targetCals*0.40)) { protein=Math.round((targetCals*0.40)/4); }
+    if (protein>200) protein=200;
     var fats=Math.round((targetCals*0.25)/9);
     var carbs=Math.max(Math.round((targetCals-(protein*4)-(fats*9))/4),0);
 
@@ -1283,7 +1284,7 @@ const GHL_WEBHOOK_GLP1 = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4n
 
     // Store baseline values for both sliders
     var proteinMin = Math.min(protein, Math.round((targetCals * 0.20) / 4));
-    var proteinMax = Math.max(protein, Math.round((targetCals * 0.45) / 4));
+    var proteinMax = Math.max(protein, Math.round((targetCals * 0.40) / 4));
     window._baseline = { targetCals: targetCals, protein: protein, weight_lbs: weight_lbs, proteinMin: proteinMin, proteinMax: proteinMax };
     document.getElementById('r-baseline-cals').textContent = targetCals.toLocaleString();
     document.getElementById('calorie-adjust').value = 0;
@@ -1381,7 +1382,7 @@ const GHL_WEBHOOK_GLP1 = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4n
 
     // Reclamp protein to new calorie total
     var pMin = Math.round((adj * 0.20) / 4);
-    var pMax = Math.round((adj * 0.45) / 4);
+    var pMax = Math.round((adj * 0.40) / 4);
     if (pSlider) {
       pSlider.min = pMin;
       pSlider.max = pMax;
