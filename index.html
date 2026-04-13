@@ -497,7 +497,7 @@ Uses event delegation — no onclick= attributes
           <div class="pill-group">
             <input type="radio" name="hrt-duration" id="hrt-dur-lt6" value="under_6_months" checked><label for="hrt-dur-lt6">Less than 6 months</label>
             <input type="radio" name="hrt-duration" id="hrt-dur-6to24" value="6_to_24_months"><label for="hrt-dur-6to24">6 months to 2 years</label>
-            <input type="radio" name="hrt-duration" id="hrt-dur-gt24" value="over_24_months"><label for="hrt-dur-gt24">More than 2 years</label>
+            <input type="radio" name="hrt-duration" id="hrt-dur-gt24" value="over_24_months"><label for="hrt-dur-gt24">2+ years (including 10, 15, 20+ years)</label>
             <input type="radio" name="hrt-duration" id="hrt-dur-unsure" value="not_sure"><label for="hrt-dur-unsure">Not sure</label>
           </div>
         </div>
@@ -747,6 +747,19 @@ Uses event delegation — no onclick= attributes
       <a href="https://www.transformfitness.net" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px;background:var(--trans-gradient);color:#0d0f14;font-family:var(--font-body);font-size:0.85rem;font-weight:600;padding:11px 24px;border-radius:100px;text-decoration:none;transition:transform 0.2s;box-shadow:0 0 20px rgba(91,206,250,0.15)">Explore Coaching</a>
     </div>
 
+
+    <!-- Testimonial -->
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:24px 24px 20px;margin-bottom:24px;position:relative;overflow:hidden">
+      <div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--trans-gradient)"></div>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+        <div style="width:44px;height:44px;border-radius:50%;background:var(--trans-gradient);display:flex;align-items:center;justify-content:center;font-size:1.2rem;color:#0d0f14;font-weight:700">K</div>
+        <div>
+          <div style="font-family:var(--font-body);font-weight:600;font-size:0.95rem;color:var(--trans-white)">Kimberly</div>
+          <div style="font-size:0.78rem;color:var(--trans-blue);font-weight:500">Lost 8 lbs</div>
+        </div>
+      </div>
+      <p style="font-family:var(--font-body);font-size:0.88rem;color:var(--muted);line-height:1.65;margin:0;font-style:italic">"After months of no progress despite having a physically demanding job, I finally figured out what was missing. Protein. Once I increased my intake and dialed in my macros using this calculator, the weight started coming off. Eight pounds down and counting."</p>
+    </div>
 
     <div class="results-cta">
       <h3 id="cta-headline">What happens next?</h3>
@@ -1038,7 +1051,9 @@ const GHL_WEBHOOK_GLP1 = 'https://services.leadconnectorhq.com/hooks/FdHIN9Z4g4n
     var email=document.getElementById('email').value.trim();
     var hasError=false;
     if (!fname) { showErr('fname-err'); hasError=true; } else { hideErr('fname-err'); }
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showErr('email-err'); hasError=true; } else { hideErr('email-err'); }
+    var disposableDomains=['mailinator.com','guerrillamail.com','tempmail.com','throwaway.email','yopmail.com','sharklasers.com','fakeinbox.com','trashmail.com','maildrop.cc','dispostable.com','guerrillamail.info','grr.la','guerrillamail.net','guerrillamail.org','mailnesia.com','tempail.com','tempr.email','throwam.com','tmpmail.org','trash-mail.com'];
+    var emailDomain=email.split('@')[1]||'';
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || disposableDomains.indexOf(emailDomain.toLowerCase())!==-1) { document.getElementById('email-err').textContent='Please enter a valid email address'; showErr('email-err'); hasError=true; } else { hideErr('email-err'); }
     if (hasError) return;
     console.log('email:', email);
 
